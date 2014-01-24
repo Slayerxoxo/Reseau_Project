@@ -7,6 +7,7 @@ Serveur à lancer avant le client
 #include <sys/socket.h>
 #include <netdb.h> 			/* pour hostent, servent */
 #include <string.h> 		/* pour bcopy, ... */  
+#include <pthread.h>		// pour pthread_create
 #define TAILLE_MAX_NOM 256
 
 typedef struct sockaddr sockaddr;
@@ -35,7 +36,7 @@ void renvoi (int sock) {
     printf("renvoi du message traite.\n");
 
     /* mise en attente du prgramme pour simuler un delai de transmission */
-    sleep(3);
+    sleep(10);
     
     write(sock,buffer,strlen(buffer)+1);
     
@@ -43,6 +44,19 @@ void renvoi (int sock) {
         
     return;
     
+}
+/*------------------------------------------------------*/
+
+/*------------------------------------------------------*/
+void * traitement(void * soc) {
+	// cast du socket
+	int * tmp = (int *)soc;
+	int nsd = *tmp;
+	
+	renvoi(nsd);
+	
+	close(nsd);
+	return NULL;
 }
 /*------------------------------------------------------*/
 
@@ -57,6 +71,7 @@ main(int argc, char **argv) {
     hostent*	ptr_hote; 					/* les infos recuperees sur la machine hote */
     servent*	ptr_service; 				/* les infos recuperees sur le service de la machine */
     char 		machine[TAILLE_MAX_NOM+1]; 	/* nom de la machine locale */
+    pthread_t	nouveauClient;				// le thread créé à la réception du message
     
     gethostname(machine,TAILLE_MAX_NOM);	/* recuperation du nom de la machine */
     
@@ -117,12 +132,34 @@ main(int argc, char **argv) {
 			perror("erreur : impossible d'accepter la connexion avec le client.");
 			exit(1);
 		}
+		/************************************/
+		/*	Deux façons de faire			*/
+		/************************************/
+		/*	SOLUTION 1: avec fork()			*/
+		/************************************/
+		switch(fork()) {
+			case 0: // fils
+				close(socket_descriptor); // clôture de la socket d'écoute des connexions
+				// traitement du message
+				printf("reception d'un message.\n");
 		
-		/* traitement du message */
-		printf("reception d'un message.\n");
-		
-		renvoi(nouv_socket_descriptor);
+				renvoi(nouv_socket_descriptor);
 						
-		close(nouv_socket_descriptor);
+				close(nouv_socket_descriptor);
+				exit(0);
+			case -1: // erreur
+				perror("Impossible de créer le fils");
+				exit(1);
+			default: // le père
+				close(nouv_socket_descriptor);
+		}
+		/************************************************/
+		/*	SOLUTION 2: avec pthread_create()			*/
+		/************************************************
+		if (pthread_create(&nouveauClient,NULL,traitement, (int *)&nouv_socket_descriptor)) {
+			perror(">> Erreur lors de la création du thread");
+			return (1);
+		}
+		/************************************************/
     }
 }
