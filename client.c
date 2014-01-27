@@ -8,6 +8,11 @@ client <adresse-serveur> <message-a-transmettre>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <string.h>
+#include "graphic.h"
+
+/* Déclarations */
+sfRenderWindow* fenetre;
+
 
 typedef struct sockaddr 	sockaddr;
 typedef struct sockaddr_in 	sockaddr_in;
@@ -101,6 +106,9 @@ int main(int argc, char **argv) {
 		printf("reponse du serveur : \n");
 		write(1,buffer,longueur);
     }
+
+	fenetre = creationFenetre();
+    sleep(3);
     
     printf("\nfin de la reception.\n");
     
