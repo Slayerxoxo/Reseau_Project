@@ -2,9 +2,15 @@
 #include "def.h"
 
 extern unsigned int maxRooms;
+extern unsigned int roomNumber;
 extern Game* rooms[MAX_ROOM_NUMBER];
 extern sfMutex* roomsMutex;
 extern unsigned int playersPerRoom;
+
+void listenEntries(void * running) {
+	// écoute et si une touche est entrée:
+	(*(unsigned short int*)running) = 1;
+}
 
 Game* findRoom() {
 	unsigned int i;
@@ -13,7 +19,7 @@ Game* findRoom() {
 
 	sfMutex_Lock(roomsMutex);
 	
-	for(i=0;i < maxRooms || result != NULL;i++) {
+	for(i=0;i < maxRooms && result == NULL;i++) {
 		if(rooms[i] != NULL) {
 			if(rooms[i]->playerNumber < playersPerRoom)
 				result = rooms[i];
@@ -39,6 +45,8 @@ Game* createRoom() {
 
 	result->state = WAITING;
 	result->playerNumber = 0;
+
+	roomNumber++;
 	
 	return result;
 }

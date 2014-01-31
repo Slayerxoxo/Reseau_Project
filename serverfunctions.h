@@ -5,6 +5,12 @@
 #include "types.h"
 
 /////////////////////////////////////////////////////////////////////
+/// Ecoute les entrées clavier
+/// 
+/////////////////////////////////////////////////////////////////////
+void listenEntries(void * running);
+
+/////////////////////////////////////////////////////////////////////
 /// Cherche une partie prête à accueillir un nouveau joueur
 ///	Renvoie une partie manqauant de joueurs, ou une nouvelle partie si toutes les actuelles sont complètes
 ///	Retourne NULL en cas d'impossibilité de créer une nouvelle partie

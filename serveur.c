@@ -13,8 +13,11 @@ Serveur à lancer avant le client
 //		Variabels globales
 //--------------------------------------------------
 unsigned int maxRooms;								// Le nombre maximum de parties simultanées
+unsigned int roomNumber;							// Le nombre de parties en cours
 Game* rooms[MAX_ROOM_NUMBER] = {NULL};				// Les parties
+sfThread* threads[MAX_ROOM_NUMBER] = {NULL};		// Les threads gérant les parties
 sfMutex* roomsMutex;								// Le mutex utilisé pour modifier la liste des parties
+sfMutex* threadsMutex;								// Le mutex utilisé pour modifier la liste des threads
 unsigned int playersPerRoom;						// Le nombre de joueurs par partie
 
 //--------------------------------------------------
@@ -26,6 +29,7 @@ int main(int argc, char **argv) {
 	size_t* received = NULL;						// La taille des messages reçus
 	sfIPAddress* sender = NULL;						// L'adresse de l'émetteur des messages reçus
 	unsigned short* port = NULL;					// Le port sur lequel le message reçu a été envoyé
+	unsigned short int running = 0;					// Booléen déterminant l'arrêt du serveur
 	
 	// Traitement des paramètres passés par l'utilisateur
 	if(argc != 3) {
@@ -49,20 +53,26 @@ int main(int argc, char **argv) {
 		printf("Socket d'écoute des demandes de connexion du serveur liée au port 5000.\n");
 	}
 
-	// Création du mutex utilisé pour gérer la liste des parties	
+	roomNumber = 0;
+	// Création des mutex	
 	roomsMutex = sfMutex_Create();
+	threadsMutex = sfMutex_Create();
 
 	//-------------------------------------------------------------------------
 	//					Boucle principale du programme
 	//-------------------------------------------------------------------------
-	for(;;) {
+	while(running == 0) {
+		// Ecoute des entrées clavier pour détecter la demande d'arrêt du serveur
+		sfThread_Launch(sfThread_Create(listenEntries, &running));
+	
 		// Ecoute des demandes de connexion
 		if(sfSocketUDP_Receive(socket, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
 		{
 			perror("erreur : impossible d'établir la connexion avec le client.\n");
 			exit(1);
 		}
-		
+		// Gestion du nouveau client dans un autre thread
+		//createThread();
 		
 	}
 
