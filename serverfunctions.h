@@ -6,13 +6,13 @@
 
 /////////////////////////////////////////////////////////////////////
 /// Cherche une partie prête à accueillir un nouveau joueur
-///	Renvoie le thread gérant une partie manquant de joueurs, ou une nouvelle partie si toutes les actuelles sont complètes
-///	Retourne NULL en cas d'impossibilité de créer une nouvelle partie
+///	Renvoie l'indice (entre 0 et MAX_ROOM_NUMBER) d'une partie manquant de joueurs, ou d'une nouvelle partie si toutes les actuelles sont complètes
+///	Retourne -1 en cas d'impossibilité de créer une nouvelle partie
 ///
-/// \return Le thread gérant la partie recherchée
+/// \return L'indice de la partie recherchée
 ///
 ////////////////////////////////////////////////////////////////////
-sfThread* findRoom();
+int findRoom();
 
 /////////////////////////////////////////////////////////////////////
 /// Crée une partie vierge
@@ -22,8 +22,17 @@ sfThread* findRoom();
 ////////////////////////////////////////////////////////////////////
 Game* createRoom();
 
-void handleNewPlayer();
+////////////////////////////////////////////////////////////////////
+/// Gère l'arrivée d'un nouveau client sur le serveur
+/// Effectue toutes les vérifications et initialisations nécessaires avant de passer (si possible) le contrôle au thread responsable de la partie attribuée
+///
+////////////////////////////////////////////////////////////////////
+void handleNewPlayer(void* arg);
 
+////////////////////////////////////////////////////////////////////
+/// Gère le déroulement d'une partie du jeu
+///
+////////////////////////////////////////////////////////////////////
 void handleGame(void* room);
 
 #endif		// _SERVER_FUNCTIONS_H_

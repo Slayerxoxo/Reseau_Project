@@ -24,11 +24,13 @@ unsigned int playersPerRoom;						// Le nombre de joueurs par partie
 //		Fonction main
 //--------------------------------------------------
 int main(int argc, char **argv) {
-	sfSocketUDP* socket = sfSocketUDP_Create();		// La socket écoutant les demandes de connexion
-	char receptionBuffer[128];						// Le buffer réceptionnant les messages reçus
-	size_t* received = NULL;						// La taille des messages reçus
-	sfIPAddress* sender = NULL;						// L'adresse de l'émetteur des messages reçus
-	unsigned short* port = NULL;					// Le port sur lequel le message reçu a été envoyé
+	sfSocketUDP* socketListen = sfSocketUDP_Create();		// La socket écoutant les demandes de connexion
+	char receptionBuffer[128];								// Le buffer réceptionnant les messages reçus
+	size_t* received = NULL;								// La taille des messages reçus
+	sfIPAddress* sender = NULL;								// L'adresse de l'émetteur des messages reçus
+	unsigned short* port = NULL;							// Le port sur lequel le message reçu a été envoyé
+	
+	int givenRoom;											// L'indice de la partie attribuée au nouveau client
 	
 	// Traitement des paramètres passés par l'utilisateur
 	if(argc != 3) {
@@ -45,7 +47,7 @@ int main(int argc, char **argv) {
 	}
 	
 	// Liaison de la socket d'écoute des demandes de connexion au port 5000
-	if(!sfSocketUDP_Bind(socket,5000)) {
+	if(!sfSocketUDP_Bind(socketListen,5000)) {
 		perror("erreur : impossible d'affecter le port 5000 à la socket du serveur.\n");
 		exit(1);
 	} else {
@@ -62,19 +64,26 @@ int main(int argc, char **argv) {
 	//-------------------------------------------------------------------------
 	for(;;) {	
 		// Ecoute des demandes de connexion
-		if(sfSocketUDP_Receive(socket, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
+		if(sfSocketUDP_Receive(socketListen, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
 		{
 			perror("erreur : impossible d'établir la connexion avec le client.\n");
 			exit(1);
 		}
-		// Gestion du nouveau client
-		//if(handleNewPlayer(findRoom(),)) {
-			// réponse au client
-		//}
+		// Gestion du nouveau client => dans un autre thread
+		givenRoom = findRoom();
+		if(givenRoom == -1) {
+			// Répondre qu'aucune partie n'est disponible, try again
+			//printf("fail");
+		} else {
+			// Agir en conséquence de l'attribution de partie
+			//printf("Connection!\n");
+		}
 	}
 
 	// Fermeture de la socket d'écoute des demandes de connexion
-	sfSocketUDP_Destroy(socket);
+	sfSocketUDP_Destroy(socketListen);
+	
+	// désallocations diverses
 	
 	return(EXIT_SUCCESS);
 }

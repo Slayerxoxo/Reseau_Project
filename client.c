@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 		perror("erreur : impossible d'affecter le port 5000 à la socket d'écoute des réponses du serveur.\n");
 		exit(1);
 	} else {
-		printf("Socket d'écoute des réponses du serveur liée au port 5000.\n");
+		printf("Socket d'écoute des réponses du serveur liée au port 5100.\n");
 	}
 	
 	// Attente d'une réponse
