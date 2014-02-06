@@ -5,20 +5,14 @@
 #include "types.h"
 
 /////////////////////////////////////////////////////////////////////
-/// Ecoute les entrées clavier
-/// 
-/////////////////////////////////////////////////////////////////////
-void listenEntries(void * running);
-
-/////////////////////////////////////////////////////////////////////
 /// Cherche une partie prête à accueillir un nouveau joueur
-///	Renvoie une partie manqauant de joueurs, ou une nouvelle partie si toutes les actuelles sont complètes
+///	Renvoie le thread gérant une partie manquant de joueurs, ou une nouvelle partie si toutes les actuelles sont complètes
 ///	Retourne NULL en cas d'impossibilité de créer une nouvelle partie
 ///
-/// \return La partie recherchée
+/// \return Le thread gérant la partie recherchée
 ///
 ////////////////////////////////////////////////////////////////////
-Game* findRoom();
+sfThread* findRoom();
 
 /////////////////////////////////////////////////////////////////////
 /// Crée une partie vierge
@@ -27,5 +21,9 @@ Game* findRoom();
 ///
 ////////////////////////////////////////////////////////////////////
 Game* createRoom();
+
+void handleNewPlayer();
+
+void handleGame(void* room);
 
 #endif		// _SERVER_FUNCTIONS_H_

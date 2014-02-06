@@ -29,7 +29,6 @@ int main(int argc, char **argv) {
 	size_t* received = NULL;						// La taille des messages reçus
 	sfIPAddress* sender = NULL;						// L'adresse de l'émetteur des messages reçus
 	unsigned short* port = NULL;					// Le port sur lequel le message reçu a été envoyé
-	unsigned short int running = 0;					// Booléen déterminant l'arrêt du serveur
 	
 	// Traitement des paramètres passés par l'utilisateur
 	if(argc != 3) {
@@ -61,19 +60,17 @@ int main(int argc, char **argv) {
 	//-------------------------------------------------------------------------
 	//					Boucle principale du programme
 	//-------------------------------------------------------------------------
-	while(running == 0) {
-		// Ecoute des entrées clavier pour détecter la demande d'arrêt du serveur
-		sfThread_Launch(sfThread_Create(listenEntries, &running));
-	
+	for(;;) {	
 		// Ecoute des demandes de connexion
 		if(sfSocketUDP_Receive(socket, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
 		{
 			perror("erreur : impossible d'établir la connexion avec le client.\n");
 			exit(1);
 		}
-		// Gestion du nouveau client dans un autre thread
-		//createThread();
-		
+		// Gestion du nouveau client
+		//if(handleNewPlayer(findRoom(),)) {
+			// réponse au client
+		//}
 	}
 
 	// Fermeture de la socket d'écoute des demandes de connexion

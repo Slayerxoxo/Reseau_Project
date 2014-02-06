@@ -4,25 +4,21 @@
 extern unsigned int maxRooms;
 extern unsigned int roomNumber;
 extern Game* rooms[MAX_ROOM_NUMBER];
+extern sfThread* threads[MAX_ROOM_NUMBER];
 extern sfMutex* roomsMutex;
 extern unsigned int playersPerRoom;
 
-void listenEntries(void * running) {
-	// écoute et si une touche est entrée:
-	(*(unsigned short int*)running) = 1;
-}
-
-Game* findRoom() {
+sfThread* findRoom() {
 	unsigned int i;
 	int emptySlot = -1;
-	Game* result = NULL;
+	sfThread* result = NULL;
 
 	sfMutex_Lock(roomsMutex);
 	
 	for(i=0;i < maxRooms && result == NULL;i++) {
 		if(rooms[i] != NULL) {
 			if(rooms[i]->playerNumber < playersPerRoom)
-				result = rooms[i];
+				result = threads[i];
 		} else {
 			if(emptySlot < 0) {
 				emptySlot = i;
@@ -32,7 +28,11 @@ Game* findRoom() {
 	
 	if(result == NULL && emptySlot >= 0) {
 		rooms[emptySlot] = createRoom();
-		result = rooms[emptySlot];
+		if(threads[emptySlot] == NULL) {
+			//threads[emptySlot] = sfThread_Create(handleGame(), rooms[emptySlot]);
+			sfThread_Launch(threads[emptySlot]);
+		}
+		result = threads[emptySlot];
 	}
 	
 	sfMutex_Unlock(roomsMutex);

@@ -30,6 +30,8 @@ int main(int argc, char **argv) {
 	size_t* received = NULL;							// La taille des messages reçus
 	sfIPAddress* sender = NULL;							// L'adresse de l'émetteur des messages reçus
 	unsigned short* port = NULL;						// Le port sur lequel le message reçu a été envoyé
+	
+	sfSocketUDP* socketReception = sfSocketUDP_Create();	// Socket utilisée pour écouter les messages du serveur
 
 	// Emission d'un message
 	if(sfSocketUDP_Send(socket, sendBuffer, sizeof(sendBuffer), sfIPAddress_FromString("127.0.0.1"), 5000) != sfSocketDone)
@@ -38,8 +40,16 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 	
+	// Liaison de la socket d'écoute des réponses au port 5000
+	if(!sfSocketUDP_Bind(socketReception,5100)) {
+		perror("erreur : impossible d'affecter le port 5000 à la socket d'écoute des réponses du serveur.\n");
+		exit(1);
+	} else {
+		printf("Socket d'écoute des réponses du serveur liée au port 5000.\n");
+	}
+	
 	// Attente d'une réponse
-	if(sfSocketUDP_Receive(socket, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
+	if(sfSocketUDP_Receive(socketReception, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
 	{
 		perror("erreur : impossible d'établir la connexion avec le serveur.\n");
 		exit(1);
