@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 	
-	// Liaison de la socket d'écoute des réponses au port 5000
+/*	// Liaison de la socket d'écoute des réponses au port 5000
 	if(!sfSocketUDP_Bind(socketReception,5100)) {
 		perror("erreur : impossible d'affecter le port 5000 à la socket d'écoute des réponses du serveur.\n");
 		exit(1);
@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
 		perror("erreur : impossible d'établir la connexion avec le serveur.\n");
 		exit(1);
 	}
-	
+*/	
 	// Gestion de la réponse du serveur
 	
 	// Lancement de la boucle principale
