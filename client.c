@@ -26,12 +26,12 @@ int main(int argc, char **argv) {
 
 	sfSocketUDP* socket = sfSocketUDP_Create();			// création de la socket
 	char sendBuffer[] = "PlayerPseudo";					// mess à envoyer
-	char receptionBuffer[128];							// Le buffer réceptionnant les messages reçus
+	/*char receptionBuffer[128];							// Le buffer réceptionnant les messages reçus
 	size_t* received = NULL;							// La taille des messages reçus
 	sfIPAddress* sender = NULL;							// L'adresse de l'émetteur des messages reçus
 	unsigned short* port = NULL;						// Le port sur lequel le message reçu a été envoyé
 	
-	sfSocketUDP* socketReception = sfSocketUDP_Create();	// Socket utilisée pour écouter les messages du serveur
+	sfSocketUDP* socketReception = sfSocketUDP_Create();	// Socket utilisée pour écouter les messages du serveur*/
 
 	// Emission d'un message
 	if(sfSocketUDP_Send(socket, sendBuffer, sizeof(sendBuffer), sfIPAddress_FromString("127.0.0.1"), 5000) != sfSocketDone)

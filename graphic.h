@@ -8,4 +8,6 @@
 sfRenderWindow* creationFenetre();
 void fermetureFenetre(sfRenderWindow* fenetre);
 
+void creationBackground(sfRenderWindow* fenetre, int largeur, int hauteur);
+
 #endif
