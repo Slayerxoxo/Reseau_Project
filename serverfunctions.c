@@ -51,6 +51,19 @@ Game* createRoom() {
 	return result;
 }
 
+Player* createPlayer(int number) {
+	Player* result = (Player*)malloc(sizeof(Player));
+	
+	result->lives = MAX_PLAYER_LIVES;
+	if (number%2 == 0) {
+		result->looking = RIGHT;
+	} else {
+		result->looking = LEFT;
+	}
+	
+	return result;
+}
+
 void handleNewPlayer(void* arg) {
 
 }

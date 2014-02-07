@@ -32,6 +32,9 @@ int main(int argc, char **argv) {
 	
 	int givenRoom;											// L'indice de la partie attribuée au nouveau client
 	
+	sfSocketUDP* socketRespond = sfSocketUDP_Create();		// La socket utilisée pour répondre au client
+	char sendBuffer[];										// Le buffer contenant la réponse à envoyer
+	
 	// Traitement des paramètres passés par l'utilisateur
 	if(argc != 3) {
 		perror("usage : serveur <nombre-max-de-salles(1-100)> <nombre-de-joueurs-par-salle(2-4)>\n");
@@ -69,11 +72,16 @@ int main(int argc, char **argv) {
 			perror("erreur : impossible d'établir la connexion avec le client.\n");
 			exit(1);
 		}
-		// Gestion du nouveau client => dans un autre thread
+		// Gestion du nouveau client => dans un autre thread ?
 		givenRoom = findRoom();
 		if(givenRoom == -1) {
-			// Répondre qu'aucune partie n'est disponible, try again
-			//printf("fail");
+			// Aucune partie n'est disponible
+			// Changer le contenu du buffer
+			if(sfSocketUDP_Send(socketRespond, sendBuffer, sizeof(sendBuffer), *sender, 5100) != sfSocketDone)
+			{
+				perror("erreur : impossible d'établir la connexion avec le client pour envoyer la réponse.\n");
+				exit(1);
+			}
 		} else {
 			// Agir en conséquence de l'attribution de partie
 			//printf("Connection!\n");
