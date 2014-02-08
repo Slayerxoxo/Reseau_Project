@@ -1,11 +1,28 @@
 #include "graphic.h"
 
+/****************************************************/
+/*       Initialisation des variables globales      */
+/****************************************************/
+
+	sfImage *murCoin;
+	sfImage *murHorizontal;
+	sfImage *murVertical;
+	sfImage *sol;
+	sfImage *obstacle;
+
+
+/****************************************************/
+/*            Création de la fenêtre                */
+/****************************************************/
+
 sfRenderWindow* creationFenetre(){
 
 	/* Affichage de la fenêtre */ 
 	sfWindowSettings windowSettings = {24, 8, 0};
 	sfVideoMode videoMode = {700, 700, 32};
-	sfRenderWindow* mainWindow = sfRenderWindow_Create(videoMode, "SFML window", sfResize | sfClose, windowSettings);
+	sfRenderWindow* mainWindow = sfRenderWindow_Create(videoMode, "SFML window", sfClose, windowSettings);
+
+	chargementImages();
 
 	while(sfRenderWindow_IsOpened(mainWindow)){
 		sfEvent Event;
@@ -20,44 +37,31 @@ sfRenderWindow* creationFenetre(){
 		//Remplissage de l'écran par un fond noir
 		sfRenderWindow_Clear(mainWindow, sfBlack);
 
-
-		//* Création de la carte *
-
-			/*/Chargement des images (créer une fonction)
-		sfImage *murCoin = sfImage_CreateFromFile("sprites/murCoin.png");
-		if (!murCoin){
-			printf("\n\nFailure to load image : \"murCoin.png\"\n\n");
-		}else{
-			sfSprite *murCoinSprite = sfSprite_Create();
-			sfSprite_SetImage(murCoinSprite, murCoin);
-			sfSprite_SetX(murCoinSprite, 0);
-			sfSprite_SetY(murCoinSprite, 0); 
-			sfRenderWindow_DrawSprite(mainWindow, murCoinSprite);
-		}*/creationBackground(mainWindow, 11, 11);
+		creationBackground(mainWindow, 11, 11);
 
 	    sfRenderWindow_Display(mainWindow);
 	}
-	
-
-
-
 
 	return mainWindow;
 }
 
+
+/****************************************************/
+/*            Fermeture de la fenêtre               */
+/****************************************************/
 
 void fermetureFenetre(sfRenderWindow* fenetre){
 	sfRenderWindow_Close(fenetre);
 	sfRenderWindow_Destroy(fenetre);
 }
 
+
+/****************************************************/
+/*               Création de la map                 */
+/****************************************************/
+
 void creationBackground(sfRenderWindow* fenetre, int largeur, int hauteur) {
-	// chargement des images
-	sfImage *murCoin = sfImage_CreateFromFile("sprites/murCoin.png");
-	sfImage *murHorizontal = sfImage_CreateFromFile("sprites/murHB.png");
-	sfImage *murVertical = sfImage_CreateFromFile("sprites/murGD.png");
-	sfImage *sol = sfImage_CreateFromFile("sprites/sol.png");
-	sfImage *obstacle = sfImage_CreateFromFile("sprites/murObstacle.png");
+
 	// vérifications de la réussite des chargements
 	if (!murCoin){
 		printf("\n\nFailure to load image : \"murCoin.png\"\n\n");
@@ -79,8 +83,10 @@ void creationBackground(sfRenderWindow* fenetre, int largeur, int hauteur) {
 		printf("\n\nFailure to load image : \"murObstacle.png\"\n\n");
 		return;
 	}
+
 	// création de sprite
 	sfSprite *sprite = sfSprite_Create();
+
 	// affichage
 	int c, l;
 	
@@ -110,4 +116,18 @@ void creationBackground(sfRenderWindow* fenetre, int largeur, int hauteur) {
 			sfRenderWindow_DrawSprite(fenetre, sprite);
 		}
 	}
+}
+
+
+/****************************************************/
+/*              Chargement des images               */
+/****************************************************/
+
+void chargementImages(){
+
+	murCoin = sfImage_CreateFromFile("sprites/murCoin.png");
+	murHorizontal = sfImage_CreateFromFile("sprites/murHB.png");
+	murVertical = sfImage_CreateFromFile("sprites/murGD.png");
+	sol = sfImage_CreateFromFile("sprites/sol.png");
+	obstacle = sfImage_CreateFromFile("sprites/murObstacle.png");
 }
