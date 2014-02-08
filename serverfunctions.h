@@ -41,7 +41,17 @@ void handleNewPlayer(void* arg);
 ////////////////////////////////////////////////////////////////////
 /// Gère le déroulement d'une partie du jeu
 ///
+/// \param roomIndex L'index du tableau contenant la partie à gérer. Un int* est attendu
+///
 ////////////////////////////////////////////////////////////////////
-void handleGame(void* room);
+void handleGame(void* roomIndex);
+
+////////////////////////////////////////////////////////////////////
+/// Ajoute un joueur à une partie
+///
+/// \param roomIndex L'index du tableau contenant la partie à laquell ajouter un joueur
+///
+////////////////////////////////////////////////////////////////////
+void addPlayer(int roomIndex);
 
 #endif		// _SERVER_FUNCTIONS_H_

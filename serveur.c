@@ -16,7 +16,7 @@ unsigned int maxRooms;								// Le nombre maximum de parties simultanées
 unsigned int roomNumber;							// Le nombre de parties en cours
 Game* rooms[MAX_ROOM_NUMBER] = {NULL};				// Les parties
 sfThread* threads[MAX_ROOM_NUMBER] = {NULL};		// Les threads gérant les parties
-sfMutex* roomsMutex;								// Le mutex utilisé pour modifier la liste des parties
+sfMutex* roomsMutex[MAX_ROOM_NUMBER];				// Les mutex utilisés pour modifier la éléments de la liste des parties
 sfMutex* threadsMutex;								// Le mutex utilisé pour modifier la liste des threads
 unsigned int playersPerRoom;						// Le nombre de joueurs par partie
 
@@ -33,7 +33,8 @@ int main(int argc, char **argv) {
 	int givenRoom;											// L'indice de la partie attribuée au nouveau client
 	
 	sfSocketUDP* socketRespond = sfSocketUDP_Create();		// La socket utilisée pour répondre au client
-	char sendBuffer[];										// Le buffer contenant la réponse à envoyer
+	
+	int i;													// Une variable utilisée pour les parcours de boucles
 	
 	// Traitement des paramètres passés par l'utilisateur
 	if(argc != 3) {
@@ -58,8 +59,10 @@ int main(int argc, char **argv) {
 	}
 
 	roomNumber = 0;
-	// Création des mutex	
-	roomsMutex = sfMutex_Create();
+	// Création des mutex
+	for(i = 0; i< maxRooms; i++) {
+		roomsMutex[i] = sfMutex_Create();
+	}
 	threadsMutex = sfMutex_Create();
 
 	//-------------------------------------------------------------------------
@@ -69,22 +72,31 @@ int main(int argc, char **argv) {
 		// Ecoute des demandes de connexion
 		if(sfSocketUDP_Receive(socketListen, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
 		{
-			perror("erreur : impossible d'établir la connexion avec le client.\n");
-			exit(1);
+			perror("erreur : impossible d'établir la connexion avec le client pour recevoir les messages.\n");
 		}
+		printf("----------Réception----------\n");
+		printf("Message: %s\n",receptionBuffer);
 		// Gestion du nouveau client => dans un autre thread ?
 		givenRoom = findRoom();
 		if(givenRoom == -1) {
 			// Aucune partie n'est disponible
-			// Changer le contenu du buffer
-			if(sfSocketUDP_Send(socketRespond, sendBuffer, sizeof(sendBuffer), *sender, 5100) != sfSocketDone)
+			if(sfSocketUDP_Send(socketRespond, "noRoomAvailable", sizeof("noRoomAvailable"), sfIPAddress_FromString("127.0.0.1"), 5100) != sfSocketDone)
 			{
 				perror("erreur : impossible d'établir la connexion avec le client pour envoyer la réponse.\n");
-				exit(1);
+			} else {
+				printf("Réponse : noRoomAvailable\n");
 			}
 		} else {
-			// Agir en conséquence de l'attribution de partie
-			//printf("Connection!\n");
+			// Une partie est disponible
+			if(sfSocketUDP_Send(socketRespond, "roomAvailable", sizeof("roomAvailable"), sfIPAddress_FromString("127.0.0.1"), 5100) != sfSocketDone)
+			{
+				perror("erreur : impossible d'établir la connexion avec le client pour envoyer la réponse.\n");
+				sfMutex_Unlock(roomsMutex[givenRoom]);
+			} else {
+				printf("Réponse : roomAvailable\n");
+				addPlayer(givenRoom);
+				sfMutex_Unlock(roomsMutex[givenRoom]);
+			}
 		}
 	}
 
