@@ -9,7 +9,9 @@ client <adresse-serveur> <message-a-transmettre>
 #include <netdb.h>
 #include <string.h>
 #include "graphic.h"
+#include "clientfunctions.h"
 #include "def.h"
+#include "types.h"
 
 #include <SFML/Network.h>
 #include <SFML/System.h>
@@ -30,7 +32,7 @@ int main(int argc, char **argv) {
 	size_t* received = NULL;							// La taille des messages reçus
 	sfIPAddress* sender = NULL;							// L'adresse de l'émetteur des messages reçus
 	unsigned short* port = NULL;						// Le port sur lequel le message reçu a été envoyé
-	
+
 	sfSocketUDP* socketReception = sfSocketUDP_Create();	// Socket utilisée pour écouter les messages du serveur
 
 	// Emission d'un message
@@ -39,15 +41,15 @@ int main(int argc, char **argv) {
 		perror("erreur : impossible d'établir la connexion avec le serveur.\n");
 		exit(1);
 	}
-	
-	// Liaison de la socket d'écoute des réponses au port 5100
+
+/*	// Liaison de la socket d'écoute des réponses au port 5100
 	if(!sfSocketUDP_Bind(socketReception,5100)) {
 		perror("erreur : impossible d'affecter le port 5100 à la socket d'écoute des réponses du serveur.\n");
 		exit(1);
 	} else {
 		printf("Socket d'écoute des réponses du serveur liée au port 5100.\n");
 	}
-	
+
 	// Attente d'une réponse
 	if(sfSocketUDP_Receive(socketReception, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
 	{
@@ -57,7 +59,7 @@ int main(int argc, char **argv) {
 
 	// Gestion de la réponse du serveur
 	printf("Réponse reçue: %s\n",receptionBuffer);
-	
+*/
 	// Lancement de la boucle principale
 		// écoute des entrées
 		// affichage de l'état actuel du jeu
@@ -67,8 +69,6 @@ int main(int argc, char **argv) {
 				// thread ?
  
 	fenetre = creationFenetre();
-    sleep(3);
-    
-       
+
     exit(0);   
 }

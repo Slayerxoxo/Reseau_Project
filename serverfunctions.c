@@ -15,9 +15,9 @@ int findRoom() {
 	
 	for(i=0;i < maxRooms && result == -1;i++) {
 		if(i!=0) {
-			sfMutex_Unlock(roomsMutex[i-1]);
+//			sfMutex_Unlock(roomsMutex[i-1]);
 		}
-		sfMutex_Lock(roomsMutex[i]);
+//		sfMutex_Lock(roomsMutex[i]);
 		if(rooms[i] != NULL) {
 			if(rooms[i]->playerNumber < playersPerRoom)		// Remplacer par un test sur state == WAITING ???
 				result = i;
@@ -37,7 +37,7 @@ int findRoom() {
 		result = emptySlot;
 	}
 	
-	sfMutex_Unlock(roomsMutex[i-1]);
+//	sfMutex_Unlock(roomsMutex[i-1]);
 	
 	return result;
 }
@@ -77,7 +77,7 @@ void handleGame(void* roomIndex) {
 	
 	// boucle d'exécution de la partie	
 	while(rooms[gameIndex]->state != FINISHED) {
-		sfMutex_Lock(roomsMutex[gameIndex]);
+//		sfMutex_Lock(roomsMutex[gameIndex]);
 	
 		switch(rooms[gameIndex]->state) {
 			case WAITING:	// En attente de tous les joueurs
@@ -94,7 +94,7 @@ void handleGame(void* roomIndex) {
 				;
 		}
 
-		sfMutex_Unlock(roomsMutex[gameIndex]);
+//		sfMutex_Unlock(roomsMutex[gameIndex]);
 	}
 	
 	// gestion de fin de partie
@@ -104,6 +104,6 @@ void handleGame(void* roomIndex) {
 }
 
 void addPlayer(int roomIndex) {
-	rooms[roomIndex]->players[rooms[roomIndex]->playerNumber] = createPlayer(rooms[roomIndex]->playerNumber+1);
+//	rooms[roomIndex]->players[rooms[roomIndex]->playerNumber] = createPlayer(rooms[roomIndex]->playerNumber+1);
 	rooms[roomIndex]->playerNumber++;
 }

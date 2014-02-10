@@ -8,8 +8,8 @@ enum direction_t {LEFT, RIGHT, UP, DOWN};							// Direction
 enum bombState_t {IDLE, COUNTING, EXPLODING};						// Etat d'une bombe: en attente d'être posée - posée prête à exploser - en train d'exploser
 
 typedef struct Position {											// Une position dans un plan
-		unsigned int x;													// Son abscisse
-		unsigned int y;													// Son ordonnée
+		int x;														// Son abscisse
+		int y;														// Son ordonnée
 	} Position;
 
 typedef struct Bomb {												// Une bombe
