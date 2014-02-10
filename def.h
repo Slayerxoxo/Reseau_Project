@@ -7,4 +7,7 @@
 #define MAX_PSEUDO_SIZE 25				// La taille maximale du pseudo des joueurs
 #define MAX_PLAYER_LIVES 2				// Le nombre de vies d'un joueur
 
+#define HAUTEUR 11						// Hauteur de la carte
+#define LARGEUR 11						// Largeur de la carte
+
 #endif		// _DEF_H_

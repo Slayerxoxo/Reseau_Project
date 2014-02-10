@@ -5,6 +5,7 @@
 #include <SFML/Graphics.h>
 #include <SFML/Window.h>
 #include "types.h"
+#include "def.h"
 
 /* Gestion de la fenêtre */
 sfRenderWindow* creationFenetre();

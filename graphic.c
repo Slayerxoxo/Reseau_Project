@@ -44,6 +44,7 @@
 	sfImage *explosionG;
 	sfImage *explosionH;
 
+	sfRenderWindow* mainWindow;
 /****************************************************/
 /*            Création de la fenêtre                */
 /****************************************************/
@@ -53,7 +54,7 @@ sfRenderWindow* creationFenetre(){
 	/* Affichage de la fenêtre */ 
 	sfWindowSettings windowSettings = {24, 8, 0};
 	sfVideoMode videoMode = {700, 700, 32};
-	sfRenderWindow* mainWindow = sfRenderWindow_Create(videoMode, "Bomber Unicorn !", sfClose, windowSettings);
+	mainWindow = sfRenderWindow_Create(videoMode, "Bomber Unicorn !", sfClose, windowSettings);
 	sfRenderWindow_SetFramerateLimit(mainWindow,60);
 
 	chargementImages();
@@ -73,18 +74,18 @@ sfRenderWindow* creationFenetre(){
 		//Affichage
 		sfRenderWindow_Clear(mainWindow, sfBlack);	//Remplissage de l'écran par un fond noir
 
-		creationBackground(mainWindow, 11, 11);		//Création de la carte
+		creationBackground(mainWindow, LARGEUR, HAUTEUR);		//Création de la carte
 
 		Position grisP, jauneP, rougeP, violetP;
 
-		grisP.x = 0;
-		grisP.y = 0;
-		jauneP.x = 10;
-		jauneP.y = 10;
-		rougeP.x = 0;
-		rougeP.y = 10;
-		violetP.x =10;
-		violetP.y = 0;
+		grisP.x = 1;
+		grisP.y = 1;
+		jauneP.x = 9;
+		jauneP.y = 9;
+		rougeP.x = 1;
+		rougeP.y = 9;
+		violetP.x =9;
+		violetP.y = 1;
 
 		refreshJoueur(grisP, jauneP, rougeP, violetP);
 

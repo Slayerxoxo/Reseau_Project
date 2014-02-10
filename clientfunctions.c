@@ -4,52 +4,80 @@
 /*       Initialisation des variables globales      */
 /****************************************************/
 
+	//Univers
+extern	sfImage *murCoin;
+extern	sfImage *murHorizontal;
+extern	sfImage *murVertical;
+extern	sfImage *sol;
+extern	sfImage *obstacle;
+	//Licornes
+extern	sfImage *grisAr;
+extern	sfImage *grisAv;
+extern	sfImage *grisG;
+extern	sfImage *grisD;
+extern	sfImage *grisM;
+extern	sfImage *grisV;
+extern	sfImage *jauneAr;
+extern	sfImage *jauneAv;
+extern	sfImage *jauneG;
+extern	sfImage *jauneD;
+extern	sfImage *jauneM;
+extern	sfImage *jauneV;
+extern	sfImage *rougeAr;
+extern	sfImage *rougeAv;
+extern	sfImage *rougeG;
+extern	sfImage *rougeD;
+extern	sfImage *rougeM;
+extern	sfImage *rougeV;
+extern	sfImage *violetAr;
+extern	sfImage *violetAv;
+extern	sfImage *violetG;
+extern	sfImage *violetD;
+extern	sfImage *violetM;
+extern	sfImage *violetV;
+	//Objets
+extern	sfImage *bombe;
+extern	sfImage *bombeRouge;
+extern	sfImage *explosionCentre;
+extern	sfImage *explosionB;
+extern	sfImage *explosionD;
+extern	sfImage *explosionG;
+extern	sfImage *explosionH;
 
-
+extern sfRenderWindow* mainWindow;
 
 /****************************************************/
 /*      Mise à jour de la position des joueurs      */
 /****************************************************/
 void refreshJoueur(Position grisP, Position jauneP, Position rougeP, Position violetP){
 
-	printf("bla");
-/*
-	// création de sprite
-	sfSprite *sprite = sfSprite_Create();
+	sfSprite *unicornSpriteG = sfSprite_Create();
+	sfSprite_SetImage(unicornSpriteG, grisD);
+	sfSprite_Resize(unicornSpriteG,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
+	sfSprite_SetX(unicornSpriteG, grisP.x*sfSprite_GetWidth(unicornSpriteG));
+	sfSprite_SetY(unicornSpriteG, grisP.y*sfSprite_GetHeight(unicornSpriteG));
+	sfRenderWindow_DrawSprite(mainWindow, unicornSpriteG);
 
-	// affichage
-	int c, l;
-	
-	for(c=0; c < largeur; c++) {
-		for(l=0; l < hauteur; l++) {
-			if(l == 0 || l == hauteur-1) {
-				if(c == 0 || c == largeur-1)
-					sfSprite_SetImage(sprite, murCoin);
-				else
-					sfSprite_SetImage(sprite, murHorizontal);
-			} else {
-				if(c == 0 || c == largeur-1) {
-					if(l != 0 && l != hauteur-1)
-						sfSprite_SetImage(sprite, murVertical);
-				} else {
-					if(c%2 == 0 && l%2 == 0)
-						sfSprite_SetImage(sprite, obstacle);
-					else
-						sfSprite_SetImage(sprite, sol);
-				}
-			}
-			
-			sfSprite_Resize(sprite,(sfRenderWindow_GetWidth(fenetre)/largeur), (sfRenderWindow_GetHeight(fenetre)/hauteur));
-			
-			sfSprite_SetX(sprite, c*sfSprite_GetWidth(sprite));
-			sfSprite_SetY(sprite, l*sfSprite_GetHeight(sprite)); 
-			sfRenderWindow_DrawSprite(fenetre, sprite);
-		}
-	}
-*/
+	sfSprite *unicornSpriteR = sfSprite_Create();
+	sfSprite_SetImage(unicornSpriteR, rougeD);
+	sfSprite_Resize(unicornSpriteR,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
+	sfSprite_SetX(unicornSpriteR, rougeP.x*sfSprite_GetWidth(unicornSpriteR));
+	sfSprite_SetY(unicornSpriteR, rougeP.y*sfSprite_GetHeight(unicornSpriteR));
+	sfRenderWindow_DrawSprite(mainWindow, unicornSpriteR);
 
+	sfSprite *unicornSpriteV = sfSprite_Create();
+	sfSprite_SetImage(unicornSpriteV, violetG);
+	sfSprite_Resize(unicornSpriteV,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
+	sfSprite_SetX(unicornSpriteV, violetP.x*sfSprite_GetWidth(unicornSpriteV));
+	sfSprite_SetY(unicornSpriteV, violetP.y*sfSprite_GetHeight(unicornSpriteV));
+	sfRenderWindow_DrawSprite(mainWindow, unicornSpriteV);
 
-
+	sfSprite *unicornSpriteJ = sfSprite_Create();
+	sfSprite_SetImage(unicornSpriteJ, jauneG);
+	sfSprite_Resize(unicornSpriteJ,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
+	sfSprite_SetX(unicornSpriteJ, jauneP.x*sfSprite_GetWidth(unicornSpriteJ));
+	sfSprite_SetY(unicornSpriteJ, jauneP.y*sfSprite_GetHeight(unicornSpriteJ));
+	sfRenderWindow_DrawSprite(mainWindow, unicornSpriteJ);
 }
 
 /****************************************************/
