@@ -1,8 +1,8 @@
 #include "serverfunctions.h"
 #include "def.h"
+#include <stdio.h>
 
 extern unsigned int maxRooms;
-extern unsigned int roomNumber;
 extern Game* rooms[MAX_ROOM_NUMBER];
 extern sfThread* threads[MAX_ROOM_NUMBER];
 extern sfMutex* roomsMutex[MAX_ROOM_NUMBER];
@@ -19,8 +19,14 @@ int findRoom() {
 		}
 		sfMutex_Lock(roomsMutex[i]);
 		if(rooms[i] != NULL) {
-			if(rooms[i]->playerNumber < playersPerRoom)		// Remplacer par un test sur state == WAITING ???
-				result = i;
+			if(rooms[i]->state == RESET) {
+				if(emptySlot < 0) {
+					emptySlot = i;
+				}
+			} else {
+				if(rooms[i]->playerNumber < playersPerRoom)		// Remplacer par un test sur state == WAITING ???
+					result = i;
+			}
 		} else {
 			if(emptySlot < 0) {
 				emptySlot = i;
@@ -47,10 +53,23 @@ Game* createRoom() {
 
 	result->state = WAITING;
 	result->playerNumber = 0;
-
-	roomNumber++;
 	
 	return result;
+}
+
+void resetRoom(int roomIndex) {
+	int i;
+	
+	sfMutex_Lock(roomsMutex[roomIndex]);
+	
+	for(i=0; i<rooms[roomIndex]->playerNumber; i++) {
+		free(rooms[roomIndex]->players[i]);
+		rooms[roomIndex]->playerNumber--;
+	}
+	
+	rooms[roomIndex]->state = RESET;
+	
+	sfMutex_Unlock(roomsMutex[roomIndex]);
 }
 
 Player* createPlayer(int number) {
@@ -62,6 +81,8 @@ Player* createPlayer(int number) {
 	} else {				// Les joueurs impairs regardent à gauche
 		result->looking = LEFT;
 	}
+	
+	result->bombs[0].state = IDLE;
 	
 	return result;
 }
@@ -101,9 +122,17 @@ void handleGame(void* roomIndex) {
 		// annonces aux joueurs
 		// désallocations
 		// ...
+	sfMutex_Lock(roomsMutex[gameIndex]);
+	
+	resetRoom(gameIndex);
+	
+	sfMutex_Unlock(roomsMutex[gameIndex]);
 }
 
 void addPlayer(int roomIndex) {
 	rooms[roomIndex]->players[rooms[roomIndex]->playerNumber] = createPlayer(rooms[roomIndex]->playerNumber+1);
 	rooms[roomIndex]->playerNumber++;
+	
+	if(rooms[roomIndex]->state == RESET)
+		rooms[roomIndex]->state = WAITING;
 }

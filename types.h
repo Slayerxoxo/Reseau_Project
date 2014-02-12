@@ -3,7 +3,7 @@
 
 #include "def.h"
 
-enum gameState_t {WAITING, STARTING, PLAYING, FINISHED};			// Etat d'une partie: en attente de joueurs pour démarrer - démarre - en cours - terminée
+enum gameState_t {RESET, WAITING, STARTING, PLAYING, FINISHED};			// Etat d'une partie: en attente de joueurs pour démarrer - démarre - en cours - terminée
 enum direction_t {LEFT, RIGHT, UP, DOWN};							// Direction
 enum bombState_t {IDLE, COUNTING, EXPLODING};						// Etat d'une bombe: en attente d'être posée - posée prête à exploser - en train d'exploser
 

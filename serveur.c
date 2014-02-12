@@ -13,11 +13,9 @@ Serveur à lancer avant le client
 //		Variabels globales
 //--------------------------------------------------
 unsigned int maxRooms;								// Le nombre maximum de parties simultanées
-unsigned int roomNumber;							// Le nombre de parties en cours
 Game* rooms[MAX_ROOM_NUMBER] = {NULL};				// Les parties
 sfThread* threads[MAX_ROOM_NUMBER] = {NULL};		// Les threads gérant les parties
 sfMutex* roomsMutex[MAX_ROOM_NUMBER];				// Les mutex utilisés pour modifier la éléments de la liste des parties
-sfMutex* threadsMutex;								// Le mutex utilisé pour modifier la liste des threads
 unsigned int playersPerRoom;						// Le nombre de joueurs par partie
 
 //--------------------------------------------------
@@ -58,12 +56,10 @@ int main(int argc, char **argv) {
 		printf("Socket d'écoute des demandes de connexion du serveur liée au port 5000.\n");
 	}
 
-	roomNumber = 0;
 	// Création des mutex
 	for(i = 0; i< maxRooms; i++) {
 		roomsMutex[i] = sfMutex_Create();
 	}
-	threadsMutex = sfMutex_Create();
 
 	//-------------------------------------------------------------------------
 	//					Boucle principale du programme
@@ -77,7 +73,9 @@ int main(int argc, char **argv) {
 		printf("----------Réception----------\n");
 		printf("Message: %s\n",receptionBuffer);
 		// Gestion du nouveau client => dans un autre thread ?
+				printf("prefind\n");
 		givenRoom = findRoom();
+				printf("postfind\n");
 		if(givenRoom == -1) {
 			// Aucune partie n'est disponible
 			if(sfSocketUDP_Send(socketRespond, "noRoomAvailable", sizeof("noRoomAvailable"), sfIPAddress_FromString("127.0.0.1"), 5100) != sfSocketDone)
