@@ -26,7 +26,7 @@ typedef struct Player {												// Un joueur
 
 typedef struct Game {												// Une partie
 		enum gameState_t state;											// Son état
-		Player players[MAX_PLAYER_NUMBER];								// Les joueurs
+		Player* players[MAX_PLAYER_NUMBER];								// Les joueurs
 		unsigned int playerNumber;										// Le nombre de joueurs
 	} Game;
 

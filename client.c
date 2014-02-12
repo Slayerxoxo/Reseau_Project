@@ -35,19 +35,19 @@ int main(int argc, char **argv) {
 
 	sfSocketUDP* socketReception = sfSocketUDP_Create();	// Socket utilisée pour écouter les messages du serveur
 
-	// Emission d'un message
-	if(sfSocketUDP_Send(socket, sendBuffer, sizeof(sendBuffer), sfIPAddress_FromString("127.0.0.1"), 5000) != sfSocketDone)
-	{
-		perror("erreur : impossible d'établir la connexion avec le serveur.\n");
-		exit(1);
-	}
-
-/*	// Liaison de la socket d'écoute des réponses au port 5100
+	// Liaison de la socket d'écoute des réponses au port 5100
 	if(!sfSocketUDP_Bind(socketReception,5100)) {
 		perror("erreur : impossible d'affecter le port 5100 à la socket d'écoute des réponses du serveur.\n");
 		exit(1);
 	} else {
 		printf("Socket d'écoute des réponses du serveur liée au port 5100.\n");
+	}
+
+	// Emission d'un message
+	if(sfSocketUDP_Send(socket, sendBuffer, sizeof(sendBuffer), sfIPAddress_FromString("127.0.0.1"), 5000) != sfSocketDone)
+	{
+		perror("erreur : impossible d'établir la connexion avec le serveur.\n");
+		exit(1);
 	}
 
 	// Attente d'une réponse
@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
 
 	// Gestion de la réponse du serveur
 	printf("Réponse reçue: %s\n",receptionBuffer);
-*/
+
 	// Lancement de la boucle principale
 		// écoute des entrées
 		// affichage de l'état actuel du jeu

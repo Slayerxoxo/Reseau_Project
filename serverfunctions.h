@@ -49,7 +49,7 @@ void handleGame(void* roomIndex);
 ////////////////////////////////////////////////////////////////////
 /// Ajoute un joueur à une partie
 ///
-/// \param roomIndex L'index du tableau contenant la partie à laquell ajouter un joueur
+/// \param roomIndex L'index du tableau contenant la partie à laquelle ajouter un joueur
 ///
 ////////////////////////////////////////////////////////////////////
 void addPlayer(int roomIndex);
