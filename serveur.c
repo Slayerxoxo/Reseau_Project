@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 	sfSocketUDP* socketListen = sfSocketUDP_Create();		// La socket écoutant les demandes de connexion
 	char receptionBuffer[128];								// Le buffer réceptionnant les messages reçus
 	size_t* received = NULL;								// La taille des messages reçus
-	sfIPAddress* sender = NULL;								// L'adresse de l'émetteur des messages reçus
+	sfIPAddress sender;										// L'adresse de l'émetteur des messages reçus
 	unsigned short* port = NULL;							// Le port sur lequel le message reçu a été envoyé
 	
 	int givenRoom;											// L'indice de la partie attribuée au nouveau client
@@ -66,19 +66,17 @@ int main(int argc, char **argv) {
 	//-------------------------------------------------------------------------
 	for(;;) {	
 		// Ecoute des demandes de connexion
-		if(sfSocketUDP_Receive(socketListen, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
+		if(sfSocketUDP_Receive(socketListen, receptionBuffer, sizeof(receptionBuffer), received, &sender, port) != sfSocketDone)
 		{
 			perror("erreur : impossible d'établir la connexion avec le client pour recevoir les messages.\n");
 		}
 		printf("----------Réception----------\n");
 		printf("Message: %s\n",receptionBuffer);
 		// Gestion du nouveau client => dans un autre thread ?
-				printf("prefind\n");
 		givenRoom = findRoom();
-				printf("postfind\n");
 		if(givenRoom == -1) {
 			// Aucune partie n'est disponible
-			if(sfSocketUDP_Send(socketRespond, "noRoomAvailable", sizeof("noRoomAvailable"), sfIPAddress_FromString("127.0.0.1"), 5100) != sfSocketDone)
+			if(sfSocketUDP_Send(socketRespond, "noRoomAvailable", sizeof("noRoomAvailable"), sender, 5100) != sfSocketDone)
 			{
 				perror("erreur : impossible d'établir la connexion avec le client pour envoyer la réponse.\n");
 			} else {
@@ -86,7 +84,7 @@ int main(int argc, char **argv) {
 			}
 		} else {
 			// Une partie est disponible
-			if(sfSocketUDP_Send(socketRespond, "roomAvailable", sizeof("roomAvailable"), sfIPAddress_FromString("127.0.0.1"), 5100) != sfSocketDone)
+			if(sfSocketUDP_Send(socketRespond, "roomAvailable", sizeof("roomAvailable"), sender, 5100) != sfSocketDone)
 			{
 				perror("erreur : impossible d'établir la connexion avec le client pour envoyer la réponse.\n");
 				sfMutex_Unlock(roomsMutex[givenRoom]);

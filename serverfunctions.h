@@ -38,13 +38,6 @@ void resetRoom(int roomIndex);
 Player* createPlayer(int number);
 
 ////////////////////////////////////////////////////////////////////
-/// Gère l'arrivée d'un nouveau client sur le serveur
-/// Effectue toutes les vérifications et initialisations nécessaires avant de passer (si possible) le contrôle au thread responsable de la partie attribuée
-///
-////////////////////////////////////////////////////////////////////
-void handleNewPlayer(void* arg);
-
-////////////////////////////////////////////////////////////////////
 /// Gère le déroulement d'une partie du jeu
 ///
 /// \param roomIndex L'index du tableau contenant la partie à gérer. Un int* est attendu

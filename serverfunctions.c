@@ -36,10 +36,12 @@ int findRoom() {
 	
 	if(result == -1 && emptySlot >= 0) {
 		rooms[emptySlot] = createRoom();
-		if(threads[emptySlot] == NULL) {
-			threads[emptySlot] = sfThread_Create(&handleGame, &emptySlot);
-			sfThread_Launch(threads[emptySlot]);
+		if(threads[emptySlot] != NULL) {
+			sfThread_Destroy(threads[emptySlot]);
 		}
+		threads[emptySlot] = sfThread_Create(&handleGame, &emptySlot);
+		sfThread_Launch(threads[emptySlot]);
+
 		result = emptySlot;
 	}
 	
@@ -60,16 +62,12 @@ Game* createRoom() {
 void resetRoom(int roomIndex) {
 	int i;
 	
-	sfMutex_Lock(roomsMutex[roomIndex]);
-	
 	for(i=0; i<rooms[roomIndex]->playerNumber; i++) {
 		free(rooms[roomIndex]->players[i]);
 		rooms[roomIndex]->playerNumber--;
 	}
 	
 	rooms[roomIndex]->state = RESET;
-	
-	sfMutex_Unlock(roomsMutex[roomIndex]);
 }
 
 Player* createPlayer(int number) {
@@ -87,25 +85,23 @@ Player* createPlayer(int number) {
 	return result;
 }
 
-void handleNewPlayer(void* arg) {
-
-}
-
 void handleGame(void* roomIndex) {
 	int gameIndex;		// L'indice de la partie à gérer dans le tableau des parties
 	
 	gameIndex = *((int*)roomIndex);
 	
-	// boucle d'exécution de la partie	
+	// boucle d'attente des joueurs
+	while(rooms[gameIndex]->state == WAITING) {
+		if(rooms[gameIndex]->playerNumber == playersPerRoom) {
+					rooms[gameIndex]->state = STARTING;
+				}
+	}
+	
+	/*/ boucle d'exécution de la partie	
 	while(rooms[gameIndex]->state != FINISHED) {
 		sfMutex_Lock(roomsMutex[gameIndex]);
 	
 		switch(rooms[gameIndex]->state) {
-			case WAITING:	// En attente de tous les joueurs
-				if(rooms[gameIndex]->playerNumber == playersPerRoom) {
-					rooms[gameIndex]->state = STARTING;
-				}
-				break;
 			case STARTING:	// Le dernier joueur attendu vient d'être ajouté
 				// ouverture des threads/sockets/... pour écoute des joueurs
 				break;
@@ -116,7 +112,7 @@ void handleGame(void* roomIndex) {
 		}
 
 		sfMutex_Unlock(roomsMutex[gameIndex]);
-	}
+	}*/
 	
 	// gestion de fin de partie
 		// annonces aux joueurs
