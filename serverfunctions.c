@@ -86,18 +86,18 @@ Player* createPlayer(int number) {
 }
 
 void handleGame(void* roomIndex) {
-	int gameIndex;		// L'indice de la partie à gérer dans le tableau des parties
+	int gameIndex;								// L'indice de la partie à gérer dans le tableau des parties
 	
 	gameIndex = *((int*)roomIndex);
 	
 	// boucle d'attente des joueurs
 	while(rooms[gameIndex]->state == WAITING) {
 		if(rooms[gameIndex]->playerNumber == playersPerRoom) {
-					rooms[gameIndex]->state = STARTING;
-				}
+			rooms[gameIndex]->state = STARTING;
+		}
 	}
 	
-	/*/ boucle d'exécution de la partie	
+	// boucle d'exécution de la partie	
 	while(rooms[gameIndex]->state != FINISHED) {
 		sfMutex_Lock(roomsMutex[gameIndex]);
 	
@@ -112,7 +112,7 @@ void handleGame(void* roomIndex) {
 		}
 
 		sfMutex_Unlock(roomsMutex[gameIndex]);
-	}*/
+	}
 	
 	// gestion de fin de partie
 		// annonces aux joueurs
@@ -125,10 +125,49 @@ void handleGame(void* roomIndex) {
 	sfMutex_Unlock(roomsMutex[gameIndex]);
 }
 
-void addPlayer(int roomIndex) {
+void addPlayer(int roomIndex, sfIPAddress clientAdr) {
 	rooms[roomIndex]->players[rooms[roomIndex]->playerNumber] = createPlayer(rooms[roomIndex]->playerNumber+1);
+	rooms[roomIndex]->players[rooms[roomIndex]->playerNumber]->address = clientAdr;
 	rooms[roomIndex]->playerNumber++;
 	
 	if(rooms[roomIndex]->state == RESET)
 		rooms[roomIndex]->state = WAITING;
+}
+
+char* playerToString(Player player) {
+	char* lives = malloc(16);
+	char* direction;
+	char* position = malloc(32+sizeof(char));
+	
+	char* res;
+	
+	sprintf(lives, "%d", player.lives);
+	switch(player.looking) {
+		case LEFT:
+			direction = malloc(5*sizeof(char));
+			sprintf(direction, "LEFT");
+			break;
+		case RIGHT:
+			direction = malloc(5*sizeof(char));
+			sprintf(direction, "RIGHT");
+			break;
+		case UP:
+			direction = malloc(3*sizeof(char));
+			sprintf(direction, "UP");
+			break;
+		case DOWN:
+			direction = malloc(5*sizeof(char));
+			sprintf(direction, "DOWN");
+			break;
+	}
+	sprintf(position, "%d;%d", player.position.x, player.position.y);
+	
+	res = malloc(sizeof(lives)+sizeof(direction)+sizeof(position)+3*sizeof(char));
+	sprintf(res, "%s;%s;%s", lives, direction, position);
+	
+	return res;
+}
+
+char* gameToString(Game game) {
+	return NULL;
 }

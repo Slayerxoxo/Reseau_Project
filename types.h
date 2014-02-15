@@ -1,6 +1,7 @@
 #ifndef _TYPES_H_
 #define _TYPES_H_
 
+#include <SFML/Network.h>
 #include "def.h"
 
 enum gameState_t {RESET, WAITING, STARTING, PLAYING, FINISHED};			// Etat d'une partie: en attente de joueurs pour démarrer - démarre - en cours - terminée
@@ -22,6 +23,7 @@ typedef struct Player {												// Un joueur
 		enum direction_t looking;										// La direction de son regard
 		Bomb bombs[MAX_BOMB_NUMBER];									// Ses bombes
 		Position position;												// Sa position
+		sfIPAddress address;											// L'IP du joueur
 	} Player;
 
 typedef struct Game {												// Une partie

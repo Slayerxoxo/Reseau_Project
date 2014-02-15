@@ -22,7 +22,7 @@ unsigned int playersPerRoom;						// Le nombre de joueurs par partie
 //		Fonction main
 //--------------------------------------------------
 int main(int argc, char **argv) {
-	sfSocketUDP* socketListen = sfSocketUDP_Create();		// La socket écoutant les demandes de connexion
+	sfSocketUDP* socketListen = NULL;						// La socket écoutant les demandes de connexion
 	char receptionBuffer[128];								// Le buffer réceptionnant les messages reçus
 	size_t* received = NULL;								// La taille des messages reçus
 	sfIPAddress sender;										// L'adresse de l'émetteur des messages reçus
@@ -30,9 +30,12 @@ int main(int argc, char **argv) {
 	
 	int givenRoom;											// L'indice de la partie attribuée au nouveau client
 	
-	sfSocketUDP* socketRespond = sfSocketUDP_Create();		// La socket utilisée pour répondre au client
+	sfSocketUDP* socketRespond = NULL;						// La socket utilisée pour répondre au client
 	
 	int i;													// Une variable utilisée pour les parcours de boucles
+	
+	socketListen = sfSocketUDP_Create();
+	socketRespond = sfSocketUDP_Create();
 	
 	// Traitement des paramètres passés par l'utilisateur
 	if(argc != 3) {
@@ -90,7 +93,7 @@ int main(int argc, char **argv) {
 				sfMutex_Unlock(roomsMutex[givenRoom]);
 			} else {
 				printf("Réponse : roomAvailable\n");
-				addPlayer(givenRoom);
+				addPlayer(givenRoom, sender);
 				sfMutex_Unlock(roomsMutex[givenRoom]);
 			}
 		}

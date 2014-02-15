@@ -51,6 +51,22 @@ void handleGame(void* roomIndex);
 /// \param roomIndex L'index du tableau contenant la partie à laquelle ajouter un joueur
 ///
 ////////////////////////////////////////////////////////////////////
-void addPlayer(int roomIndex);
+void addPlayer(int roomIndex, sfIPAddress clientAdr);
+
+////////////////////////////////////////////////////////////////////
+/// Génère une chaine de caractères décrivant un joueur
+///
+/// \param player Le joueur à décrire
+///
+////////////////////////////////////////////////////////////////////
+char* playerToString(Player player);
+
+////////////////////////////////////////////////////////////////////
+/// Génère une chaine de caractères décrivant une partie
+///
+/// \param game La partie à décrire
+///
+////////////////////////////////////////////////////////////////////
+char* gameToString(Game game);
 
 #endif		// _SERVER_FUNCTIONS_H_
