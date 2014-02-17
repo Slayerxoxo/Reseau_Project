@@ -44,6 +44,11 @@
 	sfImage *explosionG;
 	sfImage *explosionH;
 
+	Player joueur;
+	Player ennemi1;
+	Player ennemi2;
+	Player ennemi3;
+
 	sfRenderWindow* mainWindow;
 /****************************************************/
 /*            Création de la fenêtre                */
@@ -72,22 +77,34 @@ sfRenderWindow* creationFenetre(){
 		}
 
 		//Affichage
-		sfRenderWindow_Clear(mainWindow, sfBlack);	//Remplissage de l'écran par un fond noir
+		sfRenderWindow_Clear(mainWindow, sfBlack);			//Remplissage de l'écran par un fond noir
+		creationBackground(mainWindow, LARGEUR, HAUTEUR);	//Création de la carte
+		
+/*		Initialisation à l'arrache     */
+		
+		joueur.position.x = 1;
+		joueur.position.y = 1;
+		joueur.lives = 2;
+		joueur.looking = RIGHT;
 
-		creationBackground(mainWindow, LARGEUR, HAUTEUR);		//Création de la carte
+		ennemi1.position.x = 9;
+		ennemi1.position.y = 9;
+		ennemi1.lives = 0;
+		ennemi1.looking = LEFT;
 
-		Position grisP, jauneP, rougeP, violetP;
+		ennemi2.position.x = 1;
+		ennemi2.position.y = 9;
+		ennemi2.lives = 2;
+		ennemi2.looking = RIGHT;
 
-		grisP.x = 1;
-		grisP.y = 1;
-		jauneP.x = 9;
-		jauneP.y = 9;
-		rougeP.x = 1;
-		rougeP.y = 9;
-		violetP.x =9;
-		violetP.y = 1;
+		ennemi3.position.x = 9;
+		ennemi3.position.y = 1;
+		ennemi3.lives = 0;
+		ennemi3.looking = LEFT;
 
-		refreshJoueur(grisP, jauneP, rougeP, violetP);
+		Player playerTab[] = {joueur, ennemi1, ennemi2, ennemi3};
+
+		refreshJoueur(playerTab, 4);
 
 	    sfRenderWindow_Display(mainWindow);
 	}

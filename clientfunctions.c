@@ -49,40 +49,125 @@ extern sfRenderWindow* mainWindow;
 /****************************************************/
 /*      Mise à jour de la position des joueurs      */
 /****************************************************/
-void refreshJoueur(Position grisP, Position jauneP, Position rougeP, Position violetP){
+void refreshJoueur(Player playerTab[], int sizeTab){
 
-	sfSprite *unicornSpriteG = sfSprite_Create();
-	sfSprite_SetImage(unicornSpriteG, grisD);
-	sfSprite_Resize(unicornSpriteG,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
-	sfSprite_SetX(unicornSpriteG, grisP.x*sfSprite_GetWidth(unicornSpriteG));
-	sfSprite_SetY(unicornSpriteG, grisP.y*sfSprite_GetHeight(unicornSpriteG));
-	sfRenderWindow_DrawSprite(mainWindow, unicornSpriteG);
+	sfSprite *unicornSprite = sfSprite_Create();
+	Position tempPos;
+	sfImage *tempImage;
+	int lifeCount;
+	int i, j;
 
-	sfSprite *unicornSpriteR = sfSprite_Create();
-	sfSprite_SetImage(unicornSpriteR, rougeD);
-	sfSprite_Resize(unicornSpriteR,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
-	sfSprite_SetX(unicornSpriteR, rougeP.x*sfSprite_GetWidth(unicornSpriteR));
-	sfSprite_SetY(unicornSpriteR, rougeP.y*sfSprite_GetHeight(unicornSpriteR));
-	sfRenderWindow_DrawSprite(mainWindow, unicornSpriteR);
-
-	sfSprite *unicornSpriteV = sfSprite_Create();
-	sfSprite_SetImage(unicornSpriteV, violetG);
-	sfSprite_Resize(unicornSpriteV,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
-	sfSprite_SetX(unicornSpriteV, violetP.x*sfSprite_GetWidth(unicornSpriteV));
-	sfSprite_SetY(unicornSpriteV, violetP.y*sfSprite_GetHeight(unicornSpriteV));
-	sfRenderWindow_DrawSprite(mainWindow, unicornSpriteV);
-
-	sfSprite *unicornSpriteJ = sfSprite_Create();
-	sfSprite_SetImage(unicornSpriteJ, jauneG);
-	sfSprite_Resize(unicornSpriteJ,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
-	sfSprite_SetX(unicornSpriteJ, jauneP.x*sfSprite_GetWidth(unicornSpriteJ));
-	sfSprite_SetY(unicornSpriteJ, jauneP.y*sfSprite_GetHeight(unicornSpriteJ));
-	sfRenderWindow_DrawSprite(mainWindow, unicornSpriteJ);
+	for (i=0; i<sizeTab; i++){
+		//Maj la position du joueur
+		tempPos = playerTab[i].position;
+		//Maj la direction du joueur
+			//Vérifie s'il est mort
+			if (playerTab[i].lives < 1){
+				switch(i)
+				{
+					case 0 :
+						tempImage = grisM; break;
+					case 1 :
+						tempImage = rougeM;	break;
+					case 2 :
+						tempImage = jauneM; break;
+					case 3 :
+						tempImage = violetM; break;
+					default:
+						;
+				}
+			}
+			else{
+				//Vérifie s'il y a victoire
+				lifeCount = 1;
+				for (j=1; j<sizeTab; j++){
+					if (playerTab[j].lives > 0){
+						lifeCount = 0;
+					}
+				}
+				if (lifeCount == 1){
+					switch(i)
+					{
+						case 0 :
+							tempImage = grisV; break;
+						case 1 :
+							tempImage = rougeV; break;
+						case 2 :
+							tempImage = jauneV; break;
+						case 3 :
+							tempImage = violetV; break;
+						default:
+							;
+					}
+				}
+				else{	//Prend la bonne direction
+					switch(i)
+					{
+						case 0 :
+							switch(playerTab[i].looking)
+							{
+								case LEFT :
+									tempImage = grisG; break;
+								case RIGHT :
+									tempImage = grisD; break;
+								case UP :
+									tempImage = grisAr; break;
+								case DOWN :
+									tempImage = grisAv; break;
+								default:
+									;
+							} break;
+						case 1 :
+							switch(playerTab[i].looking)
+							{
+								case LEFT :
+									tempImage = rougeG; break;
+								case RIGHT :
+									tempImage = rougeD; break;
+								case UP :
+									tempImage = rougeAr; break;
+								case DOWN :
+									tempImage = rougeAv; break;
+								default:
+									;
+							} break;
+						case 2 :
+							switch(playerTab[i].looking)
+							{
+								case LEFT :
+									tempImage = jauneG; break;
+								case RIGHT :
+									tempImage = jauneD; break;
+								case UP :
+									tempImage = jauneAr; break;
+								case DOWN :
+									tempImage = jauneAv; break;
+								default:
+									;
+							} break;
+						case 3 :
+							switch(playerTab[i].looking)
+							{
+								case LEFT :
+									tempImage = violetG; break;
+								case RIGHT :
+									tempImage = violetD; break;
+								case UP :
+									tempImage = violetAr; break;
+								case DOWN :
+									tempImage = violetAv; break;
+								default:
+									;
+							} break;
+					}
+				}
+			}
+		sfSprite_SetImage(unicornSprite, tempImage);
+		sfSprite_Resize(unicornSprite,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
+		sfSprite_SetX(unicornSprite, tempPos.x*sfSprite_GetWidth(unicornSprite));	
+		sfSprite_SetY(unicornSprite, tempPos.y*sfSprite_GetHeight(unicornSprite)); 
+		sfRenderWindow_DrawSprite(mainWindow, unicornSprite);
+	}
+	
 }
 
-/****************************************************/
-/*          test si le joueur peut bouger           */
-/****************************************************/
-unsigned int testPosition(Position pos){
-
-}

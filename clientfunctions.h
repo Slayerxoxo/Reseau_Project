@@ -8,7 +8,6 @@
 #include "graphic.h"
 #include "def.h"
 
-void refreshJoueur(Position grisP, Position jauneP, Position rougeP, Position violetP);
-unsigned int testPosition(Position pos);
+void refreshJoueur(Player playerTab[], int sizeTab);
 
 #endif
