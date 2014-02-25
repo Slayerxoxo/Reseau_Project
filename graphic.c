@@ -64,51 +64,6 @@ sfRenderWindow* creationFenetre(){
 
 	chargementImages();
 
-	/* Gestion des évènements */
-
-	while(sfRenderWindow_IsOpened(mainWindow)){
-		sfEvent Event;
-        while (sfRenderWindow_GetEvent(mainWindow, &Event)){
-
-			//Fermeture de la fenêtre
-            if (Event.Type == sfEvtClosed){
-                sfRenderWindow_Close(mainWindow);
-			}
-		}
-
-		//Affichage
-		sfRenderWindow_Clear(mainWindow, sfBlack);			//Remplissage de l'écran par un fond noir
-		creationBackground(mainWindow, LARGEUR, HAUTEUR);	//Création de la carte
-		
-/*		Initialisation à l'arrache     */
-		
-		joueur.position.x = 1;
-		joueur.position.y = 1;
-		joueur.lives = 2;
-		joueur.looking = RIGHT;
-
-		ennemi1.position.x = 9;
-		ennemi1.position.y = 9;
-		ennemi1.lives = 0;
-		ennemi1.looking = LEFT;
-
-		ennemi2.position.x = 1;
-		ennemi2.position.y = 9;
-		ennemi2.lives = 2;
-		ennemi2.looking = RIGHT;
-
-		ennemi3.position.x = 9;
-		ennemi3.position.y = 1;
-		ennemi3.lives = 0;
-		ennemi3.looking = LEFT;
-
-		Player playerTab[] = {joueur, ennemi1, ennemi2, ennemi3};
-
-		refreshJoueur(playerTab, 4);
-
-	    sfRenderWindow_Display(mainWindow);
-	}
-
 	return mainWindow;
 }
 
@@ -319,4 +274,28 @@ void chargementImages(){
 	}
 }
 
+void afficheALArrache() {
+	joueur.position.x = 1;
+	joueur.position.y = 1;
+	joueur.lives = 2;
+	joueur.looking = RIGHT;
 
+	ennemi1.position.x = 9;
+	ennemi1.position.y = 9;
+	ennemi1.lives = 0;
+	ennemi1.looking = LEFT;
+
+	ennemi2.position.x = 1;
+	ennemi2.position.y = 9;
+	ennemi2.lives = 2;
+	ennemi2.looking = RIGHT;
+
+	ennemi3.position.x = 9;
+	ennemi3.position.y = 1;
+	ennemi3.lives = 0;
+	ennemi3.looking = LEFT;
+
+	Player playerTab[] = {joueur, ennemi1, ennemi2, ennemi3};
+
+	refreshJoueur(playerTab, 4);
+}

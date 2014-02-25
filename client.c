@@ -36,6 +36,7 @@ int main(int argc, char **argv) {
 	char pseudo[7];										// Le pseudo du joueur
 	char gameNumber[4];									// Le numéro de la partie à laquelle on appartient
 	char playerNumber[2];								// Le numéro du joueur dans la partie
+	int myTurn = 0;										// Indique si c'est notre tour de jouer ou non (0 = NON, 1 = OUI)
 
 	sfSocketUDP* socketReception = sfSocketUDP_Create();	// Socket utilisée pour écouter les messages du serveur
 //====================================================================================================================================== configuration du client
@@ -108,6 +109,44 @@ int main(int argc, char **argv) {
 				// thread ?
  
 	fenetre = creationFenetre();
+	
+	
+	/* Gestion des évènements */
+
+	while(sfRenderWindow_IsOpened(fenetre)){
+		sfEvent Event;
+        while (sfRenderWindow_GetEvent(fenetre, &Event)){
+
+			//Fermeture de la fenêtre
+            if (Event.Type == sfEvtClosed){
+                sfRenderWindow_Close(fenetre);
+			}
+			if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyEscape))
+                sfRenderWindow_Close(fenetre);
+		}
+
+		//Affichage
+		sfRenderWindow_Clear(fenetre, sfBlack);			//Remplissage de l'écran par un fond noir
+		creationBackground(fenetre, LARGEUR, HAUTEUR);	//Création de la carte
+		
+		afficheALArrache();								// A ENLEVER POUR RENDRE
+	    sfRenderWindow_Display(fenetre);
+
+		if (myTurn == 1) {	// C'est à notre tour de jouer
+			// Ecoute des touches
+			// Envoi du coup joué
+		} else {	// En attente de notre tour
+			// Attente d'une réponse
+			if(sfSocketUDP_Receive(socketReception, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
+			{
+				perror("erreur : impossible d'établir la connexion avec le serveur pour recevoir les messages du jeu.\n");
+				exit(1);
+			}
+			// Traitement du message
+			printf("%s\n",receptionBuffer);
+		}
+
+	}
 
     exit(0);   
 }

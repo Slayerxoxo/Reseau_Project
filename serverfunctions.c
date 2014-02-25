@@ -1,6 +1,7 @@
 #include "serverfunctions.h"
 #include "def.h"
 #include <stdio.h>
+#include <SFML/Network.h>
 
 extern unsigned int maxRooms;
 extern Game* rooms[MAX_ROOM_NUMBER];
@@ -88,6 +89,8 @@ Player* createPlayer(int number) {
 void handleGame(void* roomIndex) {
 	int gameIndex;								// L'indice de la partie à gérer dans le tableau des parties
 	
+	sfSocketUDP* socketSend = sfSocketUDP_Create();
+	
 	gameIndex = *((int*)roomIndex);
 	
 	// boucle d'attente des joueurs
@@ -104,6 +107,12 @@ void handleGame(void* roomIndex) {
 		switch(rooms[gameIndex]->state) {
 			case STARTING:	// Le dernier joueur attendu vient d'être ajouté
 				// ouverture des threads/sockets/... pour écoute des joueurs
+				if(sfSocketUDP_Send(socketSend, "toto", sizeof("toto"), rooms[gameIndex]->players[0]->address, 5200) != sfSocketDone)
+				{
+					perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
+				} else {
+					printf("Envoi : toto\n");
+				}
 				break;
 			case PLAYING:	// La partie est en cours
 				break;
