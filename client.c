@@ -62,19 +62,33 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	do {
-		// Attente d'une réponse
-		if(sfSocketUDP_Receive(socketReception, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
-		{
-			perror("erreur : impossible d'établir la connexion avec le serveur pour recevoir la réponse à la demande de partie.\n");
-			exit(1);
-		}
+	// Attente d'une réponse
+	if(sfSocketUDP_Receive(socketReception, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
+	{
+		perror("erreur : impossible d'établir la connexion avec le serveur pour recevoir la réponse à la demande de partie.\n");
+		exit(1);
+	}
 //====================================================================================================================================== traitement de la réponse
-		// Gestion de la réponse du serveur
-		printf("Réponse reçue: %s\n",receptionBuffer);
+	// Gestion de la réponse du serveur
+	printf("Réponse reçue: %s\n",receptionBuffer);
 	
-	} while (responseIsForMe(receptionBuffer, sizeof(receptionBuffer), pseudo, sizeof(pseudo)) == 0);
+	if(strncmp(receptionBuffer, "noRoomAvailable", sizeof(receptionBuffer)) == 0) {
+		printf("Aucune partie n'est disponible actuellement. Veuillez réessayer plus tard.\n");
+		exit(0);
+	}
 	
+	// Récupération du numéro de partie
+	if((strlen(receptionBuffer)-strlen(strchr(receptionBuffer, '/'))) <= 3)
+		snprintf(gameNumber, strlen(receptionBuffer)-strlen(strchr(receptionBuffer, '/'))+1, "%s", receptionBuffer);
+	else
+		snprintf(gameNumber, 4 , "%s",receptionBuffer);
+	
+	printf("%s\n", gameNumber);
+	
+	// Récupération du numéro de joueur
+	snprintf(playerNumber, 2 , "%s", strchr(receptionBuffer, '/')+sizeof(char));
+	
+	printf("%s\n", playerNumber);
 	
 	
 	// Liaison de la socket d'écoute du serveur au port de gestion de partie

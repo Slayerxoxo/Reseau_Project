@@ -32,7 +32,6 @@ int main(int argc, char **argv) {
 	
 	sfSocketUDP* socketRespond = NULL;						// La socket utilisée pour répondre au client
 	char givenGame[4];										// Le numéro de la partie allouée au client
-	char clientPseudo[7];									// Le pseudo du client
 	char sendBuffer[512];									// Le buffer servant àrépondre au client
 	
 	int i;													// Une variable utilisée pour les parcours de boucles
@@ -91,8 +90,7 @@ int main(int argc, char **argv) {
 		} else {
 			// Une partie est disponible
 			snprintf(givenGame, 4, "%d", givenRoom);
-			snprintf(clientPseudo, 7, "%s", receptionBuffer);
-			snprintf(sendBuffer, 512, "%s/%s/%d", givenGame, clientPseudo, rooms[givenRoom]->playerNumber+1);
+			snprintf(sendBuffer, 512, "%s/%d", givenGame, rooms[givenRoom]->playerNumber+1);
 			if(sfSocketUDP_Send(socketRespond, sendBuffer, sizeof(sendBuffer), sender, 5100) != sfSocketDone)
 			{
 				perror("erreur : impossible d'établir la connexion avec le client pour envoyer la réponse.\n");
