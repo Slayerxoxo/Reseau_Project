@@ -171,3 +171,6 @@ void refreshJoueur(Player playerTab[], int sizeTab){
 	
 }
 
+int responseIsForMe(char response[], int responseSize, char pseudo[], int pseudoSize) {
+	return 1;
+}

@@ -31,6 +31,9 @@ int main(int argc, char **argv) {
 	int givenRoom;											// L'indice de la partie attribuée au nouveau client
 	
 	sfSocketUDP* socketRespond = NULL;						// La socket utilisée pour répondre au client
+	char givenGame[4];										// Le numéro de la partie allouée au client
+	char clientPseudo[7];									// Le pseudo du client
+	char sendBuffer[512];									// Le buffer servant àrépondre au client
 	
 	int i;													// Une variable utilisée pour les parcours de boucles
 	
@@ -71,7 +74,7 @@ int main(int argc, char **argv) {
 		// Ecoute des demandes de connexion
 		if(sfSocketUDP_Receive(socketListen, receptionBuffer, sizeof(receptionBuffer), received, &sender, port) != sfSocketDone)
 		{
-			perror("erreur : impossible d'établir la connexion avec le client pour recevoir les messages.\n");
+			perror("erreur : impossible d'établir la connexion avec le client pour recevoir les demandes de connexion.\n");
 		}
 		printf("----------Réception----------\n");
 		printf("Message: %s\n",receptionBuffer);
@@ -87,12 +90,15 @@ int main(int argc, char **argv) {
 			}
 		} else {
 			// Une partie est disponible
-			if(sfSocketUDP_Send(socketRespond, "roomAvailable", sizeof("roomAvailable"), sender, 5100) != sfSocketDone)
+			snprintf(givenGame, 4, "%d", givenRoom);
+			snprintf(clientPseudo, 7, "%s", receptionBuffer);
+			snprintf(sendBuffer, 512, "%s/%s/%d", givenGame, clientPseudo, rooms[givenRoom]->playerNumber+1);
+			if(sfSocketUDP_Send(socketRespond, sendBuffer, sizeof(sendBuffer), sender, 5100) != sfSocketDone)
 			{
 				perror("erreur : impossible d'établir la connexion avec le client pour envoyer la réponse.\n");
 				sfMutex_Unlock(roomsMutex[givenRoom]);
 			} else {
-				printf("Réponse : roomAvailable\n");
+				printf("Réponse : %s\n", sendBuffer);
 				addPlayer(givenRoom, sender);
 				sfMutex_Unlock(roomsMutex[givenRoom]);
 			}
