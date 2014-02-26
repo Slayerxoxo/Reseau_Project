@@ -274,11 +274,15 @@ void chargementImages(){
 	}
 }
 
-void afficheALArrache() {
+void initialisation(){
+
 	joueur.position.x = 1;
 	joueur.position.y = 1;
 	joueur.lives = 2;
 	joueur.looking = RIGHT;
+}
+
+void afficheALArrache() {
 
 	ennemi1.position.x = 9;
 	ennemi1.position.y = 9;

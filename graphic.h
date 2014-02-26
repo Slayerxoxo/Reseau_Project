@@ -17,7 +17,7 @@ void creationBackground(sfRenderWindow* fenetre, int largeur, int hauteur);
 
 /* Gestion des chargements */
 void chargementImages();
-
+void initialisation();
 void afficheALArrache();
 
 #endif
