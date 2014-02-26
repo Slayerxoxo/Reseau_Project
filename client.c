@@ -129,41 +129,51 @@ int main(int argc, char **argv) {
 			// Ecoute des touches
   			while (sfRenderWindow_GetEvent(fenetre, &Event)){
 
-			//Fermeture de la fenêtre
-            if (Event.Type == sfEvtClosed){
-                sfRenderWindow_Close(fenetre);
+				//Fermeture de la fenêtre
+		        if (Event.Type == sfEvtClosed){
+		            sfRenderWindow_Close(fenetre);
+				}
+				if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyEscape)){
+		            sfRenderWindow_Close(fenetre);
+				}
+				//Déplacement
+				if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyUp)){
+					//fonction d'envoie au serveur la demande du déplacement
+					snprintf(sendBuffer,sizeof(sendBuffer),"%s/%s/up",gameNumber, playerNumber);
+				}
+				if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyDown)){
+					//fonction d'envoie au serveur la demande du déplacement
+					snprintf(sendBuffer,sizeof(sendBuffer),"%s/%s/down",gameNumber, playerNumber);
+				}
+				if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyLeft)){
+					//fonction d'envoie au serveur la demande du déplacement
+					snprintf(sendBuffer,sizeof(sendBuffer),"%s/%s/left",gameNumber, playerNumber);
+				}
+				if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyRight)){
+					//fonction d'envoie au serveur la demande du déplacement
+					snprintf(sendBuffer,sizeof(sendBuffer),"%s/%s/right",gameNumber, playerNumber);
+				}
+				if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeySpace)){
+					//fonction d'envoie au serveur la demande du déplacement
+					snprintf(sendBuffer,sizeof(sendBuffer),"%s/%s/bomb",gameNumber, playerNumber);
+				}
 			}
-			if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyEscape)){
-                sfRenderWindow_Close(fenetre);
-			}
-			//Déplacement
-			if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyUp)){
-				//fonction d'envoie au serveur la demande du déplacement
-				snprintf(sendBuffer,sizeof(sendBuffer),"%s/%s/up",gameNumber, playerNumber);
-			}
-			if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyDown)){
-				//fonction d'envoie au serveur la demande du déplacement
-				snprintf(sendBuffer,sizeof(sendBuffer),"%s/%s/down",gameNumber, playerNumber);
-			}
-			if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyLeft)){
-				//fonction d'envoie au serveur la demande du déplacement
-				snprintf(sendBuffer,sizeof(sendBuffer),"%s/%s/left",gameNumber, playerNumber);
-			}
-			if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyRight)){
-				//fonction d'envoie au serveur la demande du déplacement
-				snprintf(sendBuffer,sizeof(sendBuffer),"%s/%s/right",gameNumber, playerNumber);
-			}
-			if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeySpace)){
-				//fonction d'envoie au serveur la demande du déplacement
-				snprintf(sendBuffer,sizeof(sendBuffer),"%s/%s/bomb",gameNumber, playerNumber);
-			}
-		}
 			// Envoi du coup joué
-		if(sfSocketUDP_Send(socket, sendBuffer, sizeof(sendBuffer), sfIPAddress_FromString("127.0.0.1"), 5042) != sfSocketDone)
-		{
-			perror("erreur : impossible d'établir la connexion avec le serveur pour demander une partie.\n");
-			exit(1);
-		}
+			if(sfSocketUDP_Send(socket, sendBuffer, sizeof(sendBuffer), sfIPAddress_FromString("127.0.0.1"), 5042) != sfSocketDone)
+			{
+				perror("erreur : impossible d'établir la connexion avec le serveur pour demander une partie.\n");
+				exit(1);
+			}
+		
+			// Attente d'une réponse
+			if(sfSocketUDP_Receive(socketReception, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
+			{
+				perror("erreur : impossible d'établir la connexion avec le serveur pour recevoir les messages du jeu.\n");
+				exit(1);
+			}
+			// Traitement du message
+			printf("%s\n",receptionBuffer);
+			// si valide alors myTurn = 0;
 
 
 		} else {	// En attente de notre tour
