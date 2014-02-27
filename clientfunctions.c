@@ -52,10 +52,13 @@ extern sfRenderWindow* mainWindow;
 void refreshJoueur(Player playerTab[], int sizeTab){
 
 	sfSprite *unicornSprite = sfSprite_Create();
+	sfSprite *bombSprite = sfSprite_Create();
 	Position tempPos;
+	Position tempPosBomb;
 	sfImage *tempImage;
+	sfImage *tempImageBomb;
 	int lifeCount;
-	int i, j;
+	int i, j, k;
 
 	for (i=0; i<sizeTab; i++){
 		//Maj la position du joueur
@@ -162,6 +165,29 @@ void refreshJoueur(Player playerTab[], int sizeTab){
 					}
 				}
 			}
+		//On vérifie et place les bombes
+		for(k=0; k<3; k++){
+			tempPosBomb = playerTab[i].bombs[k].position;
+			if(playerTab[i].bombs[k].state != IDLE){
+				switch(playerTab[i].bombs[k].state){
+					case COUNTING :
+									tempImageBomb = bombe; break;
+					case RED :
+									tempImageBomb = bombeRouge; break;
+					case EXPLODING :
+									tempImageBomb = explosionCentre; break;
+					default:
+						;
+				}
+			//On affiche les sprites des bombes
+				sfSprite_SetImage(bombSprite, tempImageBomb);
+				sfSprite_Resize(bombSprite,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
+				sfSprite_SetX(bombSprite, tempPos.x*sfSprite_GetWidth(bombSprite));	
+				sfSprite_SetY(bombSprite, tempPos.y*sfSprite_GetHeight(bombSprite)); 
+				sfRenderWindow_DrawSprite(mainWindow, bombSprite);
+			}
+		}
+		//On affiche les sprites des joueurs
 		sfSprite_SetImage(unicornSprite, tempImage);
 		sfSprite_Resize(unicornSprite,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
 		sfSprite_SetX(unicornSprite, tempPos.x*sfSprite_GetWidth(unicornSprite));	

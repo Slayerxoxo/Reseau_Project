@@ -280,6 +280,13 @@ void initialisation(){
 	joueur.position.y = 1;
 	joueur.lives = 2;
 	joueur.looking = RIGHT;
+	joueur.bombs[0].position.x = 7;
+	joueur.bombs[0].position.y = 7;
+	joueur.bombs[0].state = RED;
+	joueur.bombs[1].position.x = 3;
+	joueur.bombs[1].position.y = 4;
+	joueur.bombs[1].state = COUNTING;
+	joueur.bombs[2].state = IDLE;
 }
 
 void afficheALArrache() {
@@ -288,16 +295,25 @@ void afficheALArrache() {
 	ennemi1.position.y = 9;
 	ennemi1.lives = 0;
 	ennemi1.looking = LEFT;
+	ennemi1.bombs[0].state = IDLE;
+	ennemi1.bombs[1].state = IDLE;
+	ennemi1.bombs[2].state = IDLE;
 
 	ennemi2.position.x = 1;
 	ennemi2.position.y = 9;
 	ennemi2.lives = 2;
 	ennemi2.looking = RIGHT;
+	ennemi2.bombs[0].state = IDLE;
+	ennemi2.bombs[1].state = IDLE;
+	ennemi2.bombs[2].state = IDLE;
 
 	ennemi3.position.x = 9;
 	ennemi3.position.y = 1;
 	ennemi3.lives = 0;
 	ennemi3.looking = LEFT;
+	ennemi3.bombs[0].state = IDLE;
+	ennemi3.bombs[1].state = IDLE;
+	ennemi3.bombs[2].state = IDLE;
 
 	Player playerTab[] = {joueur, ennemi1, ennemi2, ennemi3};
 
