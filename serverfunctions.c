@@ -111,7 +111,7 @@ void handleGame(void* roomIndex) {
 				{
 					perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
 				} else {
-					printf("Envoi : toto\n");
+					//printf("Envoi : toto\n");
 				}
 				break;
 			case PLAYING:	// La partie est en cours

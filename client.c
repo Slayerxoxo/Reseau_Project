@@ -48,12 +48,12 @@ int main(int argc, char **argv) {
     snprintf(sendBuffer,7,"%s",argv[1]);
     snprintf(pseudo,7,"%s",argv[1]);
 
-	// Liaison de la socket d'écoute des réponses au port 5100
-	if(!sfSocketUDP_Bind(socketReception,5100)) {
-		perror("erreur : impossible d'affecter le port 5100 à la socket d'écoute des réponses du serveur.\n");
+	// Liaison de la socket d'écoute des réponses au port 5001
+	if(!sfSocketUDP_Bind(socketReception,5001)) {
+		perror("erreur : impossible d'affecter le port 5001 à la socket d'écoute des réponses du serveur.\n");
 		exit(1);
 	} else {
-		printf("Socket d'écoute des réponses du serveur liée au port 5100.\n");
+		printf("Socket d'écoute des réponses du serveur liée au port 5001.\n");
 	}
 //====================================================================================================================================== demande de partie au serveur
 	// Emission d'un message
@@ -93,11 +93,11 @@ int main(int argc, char **argv) {
 	
 	
 	// Liaison de la socket d'écoute du serveur au port de gestion de partie
-	if(!sfSocketUDP_Bind(socketReception,5200)) {
+	if(!sfSocketUDP_Bind(socketReception,5100+atoi(gameNumber)*(MAX_PLAYER_NUMBER+1)+atoi(playerNumber))) {
 		perror("erreur : impossible d'affecter le port 5200 à la socket d'écoute des réponses du serveur pour la partie.\n");
 		exit(1);
 	} else {
-		printf("Socket d'écoute des réponses du serveur liée au port 5200.\n");
+		printf("Socket d'écoute des réponses du serveur liée au port %d.\n",5100+atoi(gameNumber)*(MAX_PLAYER_NUMBER+1)+atoi(playerNumber));
 	}
 	
 	// Lancement de la boucle principale
@@ -159,9 +159,9 @@ int main(int argc, char **argv) {
 				}
 			}
 			// Envoi du coup joué
-			if(sfSocketUDP_Send(socket, sendBuffer, sizeof(sendBuffer), sfIPAddress_FromString("127.0.0.1"), 5042) != sfSocketDone)
+			if(sfSocketUDP_Send(socket, sendBuffer, sizeof(sendBuffer), sfIPAddress_FromString("127.0.0.1"), 5100+atoi(gameNumber)*(MAX_PLAYER_NUMBER+1)) != sfSocketDone)
 			{
-				perror("erreur : impossible d'établir la connexion avec le serveur pour demander une partie.\n");
+				perror("erreur : impossible d'établir la connexion avec le serveur pour envoyer le coup joué.\n");
 				exit(1);
 			}
 		

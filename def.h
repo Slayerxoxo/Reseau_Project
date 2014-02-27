@@ -11,3 +11,17 @@
 #define LARGEUR 11						// Largeur de la carte
 
 #endif		// _DEF_H_
+
+/*
+	Convention sur les attributions de ports
+	========================================
+	
+	Serveur:
+		Ecoute des demandes de conexion								->		5000
+		Ecoute de la partie n (0 -> maxPartiesSimultanées)			->		5100 + n * ( maxJoueursParSalle + 1 )
+
+	Client:
+		Ecoute des réponses aux demandes de connexion																	->		5001
+		Ecoute du serveur pour le joueur j (1 -> maxJoueursParSalle) de la partie n (0 -> maxPartiesSimultanées)		->		5100 + n * ( maxJoueursParSalle + 1 ) + j
+
+*/

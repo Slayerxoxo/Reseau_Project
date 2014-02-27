@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
 		givenRoom = findRoom();
 		if(givenRoom == -1) {
 			// Aucune partie n'est disponible
-			if(sfSocketUDP_Send(socketRespond, "noRoomAvailable", sizeof("noRoomAvailable"), sender, 5100) != sfSocketDone)
+			if(sfSocketUDP_Send(socketRespond, "noRoomAvailable", sizeof("noRoomAvailable"), sender, 5001) != sfSocketDone)
 			{
 				perror("erreur : impossible d'établir la connexion avec le client pour envoyer la réponse.\n");
 			} else {
@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
 			// Une partie est disponible
 			snprintf(givenGame, 4, "%d", givenRoom);
 			snprintf(sendBuffer, 512, "%s/%d", givenGame, rooms[givenRoom]->playerNumber+1);
-			if(sfSocketUDP_Send(socketRespond, sendBuffer, sizeof(sendBuffer), sender, 5100) != sfSocketDone)
+			if(sfSocketUDP_Send(socketRespond, sendBuffer, sizeof(sendBuffer), sender, 5001) != sfSocketDone)
 			{
 				perror("erreur : impossible d'établir la connexion avec le client pour envoyer la réponse.\n");
 				sfMutex_Unlock(roomsMutex[givenRoom]);
