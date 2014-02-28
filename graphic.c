@@ -280,11 +280,11 @@ void initialisation(){
 	joueur.position.y = 1;
 	joueur.lives = 2;
 	joueur.looking = RIGHT;
-	joueur.bombs[0].position.x = 7;
-	joueur.bombs[0].position.y = 7;
+	joueur.bombs[0].position.x = 8;
+	joueur.bombs[0].position.y = 9;
 	joueur.bombs[0].state = RED;
-	joueur.bombs[1].position.x = 3;
-	joueur.bombs[1].position.y = 4;
+	joueur.bombs[1].position.x = 2;
+	joueur.bombs[1].position.y = 1;
 	joueur.bombs[1].state = COUNTING;
 	joueur.bombs[2].state = IDLE;
 }
@@ -293,7 +293,7 @@ void afficheALArrache() {
 
 	ennemi1.position.x = 9;
 	ennemi1.position.y = 9;
-	ennemi1.lives = 0;
+	ennemi1.lives = 2;
 	ennemi1.looking = LEFT;
 	ennemi1.bombs[0].state = IDLE;
 	ennemi1.bombs[1].state = IDLE;
@@ -309,7 +309,7 @@ void afficheALArrache() {
 
 	ennemi3.position.x = 9;
 	ennemi3.position.y = 1;
-	ennemi3.lives = 0;
+	ennemi3.lives = 2;
 	ennemi3.looking = LEFT;
 	ennemi3.bombs[0].state = IDLE;
 	ennemi3.bombs[1].state = IDLE;

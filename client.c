@@ -41,8 +41,8 @@ int main(int argc, char **argv) {
 	sfSocketUDP* socketReception = sfSocketUDP_Create();	// Socket utilisée pour écouter les messages du serveur
 //====================================================================================================================================== configuration du client
 	// Traitement des paramètres passés par l'utilisateur
-	if(argc != 2) {
-		perror("usage : client <pseudo(6 caractères max)>\n");
+	if(argc != 3) {
+		perror("usage : client <pseudo(6 caractères max)> <ip serveur>\n");
 		exit(1);
     }
     snprintf(sendBuffer,7,"%s",argv[1]);
@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
 	}
 //====================================================================================================================================== demande de partie au serveur
 	// Emission d'un message
-	if(sfSocketUDP_Send(socket, sendBuffer, sizeof(sendBuffer), sfIPAddress_FromString("127.0.0.1"), 5000) != sfSocketDone)
+	if(sfSocketUDP_Send(socket, sendBuffer, sizeof(sendBuffer), sfIPAddress_FromString(argv[2]), 5000) != sfSocketDone)
 	{
 		perror("erreur : impossible d'établir la connexion avec le serveur pour demander une partie.\n");
 		exit(1);
