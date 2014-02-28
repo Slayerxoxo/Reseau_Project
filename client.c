@@ -172,9 +172,11 @@ int main(int argc, char **argv) {
 				exit(1);
 			}
 			// Traitement du message
+			if (strcmp(receptionBuffer, "fail") != 0){
+				myTurn = 0;	
+				//maj des joueurs (nouvel état après mon mouvement)
+			}
 			printf("%s\n",receptionBuffer);
-			// si valide alors myTurn = 0;
-
 
 		} else {	// En attente de notre tour
 			// Attente d'une réponse
@@ -184,6 +186,13 @@ int main(int argc, char **argv) {
 				exit(1);
 			}
 			// Traitement du message
+			if(strcmp(receptionBuffer, "play") == 0){
+				myTurn = 1;
+			}
+			else {
+			//maj de joueurs
+
+			}
 			printf("%s\n",receptionBuffer);
 		}
 
