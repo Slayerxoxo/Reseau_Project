@@ -182,8 +182,8 @@ void refreshJoueur(Player playerTab[], int sizeTab){
 			//On affiche les sprites des bombes
 				sfSprite_SetImage(bombSprite, tempImageBomb);
 				sfSprite_Resize(bombSprite,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
-				sfSprite_SetX(bombSprite, tempPos.x*sfSprite_GetWidth(bombSprite));	
-				sfSprite_SetY(bombSprite, tempPos.y*sfSprite_GetHeight(bombSprite)); 
+				sfSprite_SetX(bombSprite, tempPosBomb.x*sfSprite_GetWidth(bombSprite));	
+				sfSprite_SetY(bombSprite, tempPosBomb.y*sfSprite_GetHeight(bombSprite)); 
 				sfRenderWindow_DrawSprite(mainWindow, bombSprite);
 			}
 		}
