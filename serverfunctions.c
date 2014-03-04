@@ -1,6 +1,7 @@
 #include "serverfunctions.h"
 #include "def.h"
 #include <stdio.h>
+#include <string.h>
 #include <SFML/Network.h>
 
 extern unsigned int maxRooms;
@@ -88,7 +89,17 @@ Player* createPlayer(int number) {
 
 void handleGame(void* roomIndex) {
 	int gameIndex;								// L'indice de la partie à gérer dans le tableau des parties
+	int activePlayer;							// L'indice du joueur dont c'est le tour
 	int i;										// Une variable pour les boucles
+	
+	sfSocketUDP* socketReceive = sfSocketUDP_Create();		// Les sockets d'écoute des joueurs
+	char receptionBuffer[128];								// Le buffer réceptionnant les messages reçus
+	size_t* received = NULL;								// La taille des messages reçus
+	sfIPAddress* sender = NULL;								// L'adresse de l'émetteur des messages reçus
+	unsigned short* port = NULL;							// Le port sur lequel le message reçu a été envoyé
+	
+	char gameNumber[4];									// Le numéro de la partie à laquelle le joueur envoyant un message appartient
+	char playerNumber[2];								// Le numéro du joueur ayant envoyé un message dans la partie
 	
 	sfSocketUDP* socketSend = sfSocketUDP_Create();
 	
@@ -107,7 +118,9 @@ void handleGame(void* roomIndex) {
 	
 		switch(rooms[gameIndex]->state) {
 			case STARTING:	// Le dernier joueur attendu vient d'être ajouté
-																						// ouverture des threads/sockets/... pour écoute des joueurs
+				// ouverture de la socket pour l'écoute des joueurs
+				sfSocketUDP_Bind(socketReceive,5100+gameIndex*(playersPerRoom+1));
+				
 				// Envoi du message de début de partie à tout le monde
 				for(i=0;i<rooms[gameIndex]->playerNumber;i++) {
 					if(sfSocketUDP_Send(socketSend, "start", sizeof("start"), rooms[gameIndex]->players[i]->address, 5100+gameIndex*(playersPerRoom+1)+i+1) != sfSocketDone)
@@ -119,6 +132,7 @@ void handleGame(void* roomIndex) {
 					}
 				}
 				// Indication au premier joueur que c'est son tour
+				activePlayer = 1;
 				if(sfSocketUDP_Send(socketSend, "play", sizeof("play"), rooms[gameIndex]->players[0]->address, 5100+gameIndex*(playersPerRoom+1)+1) != sfSocketDone)
 					{
 						perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
@@ -128,6 +142,26 @@ void handleGame(void* roomIndex) {
 				rooms[gameIndex]->state = PLAYING;
 				break;
 			case PLAYING:	// La partie est en cours
+				// écoute du joueur courant
+				if(sfSocketUDP_Receive(socketReceive, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
+				{
+					perror("erreur : impossible d'établir la connexion avec le client pour recevoir les messages du jeu.\n");
+				} else {
+					printf("%s\n",receptionBuffer);
+				}
+				// test du message
+					// Récupération du numéro de partie
+					if((strlen(receptionBuffer)-strlen(strchr(receptionBuffer, '/'))) <= 3)
+						snprintf(gameNumber, strlen(receptionBuffer)-strlen(strchr(receptionBuffer, '/'))+1, "%s", receptionBuffer);
+					else
+						snprintf(gameNumber, 4 , "%s",receptionBuffer);
+	
+					// Récupération du numéro de joueur
+					snprintf(playerNumber, 2 , "%s", strchr(receptionBuffer, '/')+sizeof(char));
+					
+					if((atoi(gameNumber) == gameIndex) && (atoi(playerNumber) == activePlayer)) {
+						// récupération du message et traitement en conséquence
+					}
 				break;
 			default:
 				;

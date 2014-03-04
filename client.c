@@ -27,13 +27,13 @@ typedef struct servent 		servent;
 int main(int argc, char **argv) {
 
 	sfSocketUDP* socket = sfSocketUDP_Create();			// création de la socket
-	char sendBuffer[7];									// mess à envoyer
+	char sendBuffer[10];								// mess à envoyer
 	char receptionBuffer[128];							// Le buffer réceptionnant les messages reçus
 	size_t* received = NULL;							// La taille des messages reçus
 	sfIPAddress* sender = NULL;							// L'adresse de l'émetteur des messages reçus
 	unsigned short* port = NULL;						// Le port sur lequel le message reçu a été envoyé
 	
-	char pseudo[7];										// Le pseudo du joueur
+	char pseudo[10];									// Le pseudo du joueur
 	char gameNumber[4];									// Le numéro de la partie à laquelle on appartient
 	char playerNumber[2];								// Le numéro du joueur dans la partie
 	int myTurn = 0;										// Indique si c'est notre tour de jouer ou non (0 = NON, 1 = OUI)
@@ -43,11 +43,11 @@ int main(int argc, char **argv) {
 //====================================================================================================================================== configuration du client
 	// Traitement des paramètres passés par l'utilisateur
 	if(argc != 3) {
-		perror("usage : client <pseudo(6 caractères max)> <ip serveur>\n");
+		perror("usage : client <pseudo(9 caractères max)> <ip serveur>\n");
 		exit(1);
     }
-    snprintf(sendBuffer,7,"%s",argv[1]);
-    snprintf(pseudo,7,"%s",argv[1]);
+    snprintf(sendBuffer,10,"%s",argv[1]);
+    snprintf(pseudo,10,"%s",argv[1]);
 
 	// Liaison de la socket d'écoute des réponses au port 5001
 	if(!sfSocketUDP_Bind(socketReception,5001)) {
@@ -187,7 +187,6 @@ int main(int argc, char **argv) {
 			}
 		} else {	// En attente de notre tour
 			// Attente d'une réponse
-			printf("attente\n");
 			if(sfSocketUDP_Receive(socketReception, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
 			{
 				perror("erreur : impossible d'établir la connexion avec le serveur pour recevoir les messages du jeu.\n");
