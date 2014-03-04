@@ -37,6 +37,7 @@ int main(int argc, char **argv) {
 	char gameNumber[4];									// Le numéro de la partie à laquelle on appartient
 	char playerNumber[2];								// Le numéro du joueur dans la partie
 	int myTurn = 0;										// Indique si c'est notre tour de jouer ou non (0 = NON, 1 = OUI)
+	int played = 0;										// Indique si un coup a été joué ou non (0 = NON, 1 = OUI)
 
 	sfSocketUDP* socketReception = sfSocketUDP_Create();	// Socket utilisée pour écouter les messages du serveur
 //====================================================================================================================================== configuration du client
@@ -127,7 +128,7 @@ int main(int argc, char **argv) {
 
 		if (myTurn == 1) {	// C'est à notre tour de jouer
 			// Ecoute des touches
-  			while (sfRenderWindow_GetEvent(fenetre, &Event)){
+  			while (sfRenderWindow_GetEvent(fenetre, &Event) && (played == 0)){
 
 				//Fermeture de la fenêtre
 		        if (Event.Type == sfEvtClosed){
@@ -140,46 +141,53 @@ int main(int argc, char **argv) {
 				if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyUp)){
 					//fonction d'envoie au serveur la demande du déplacement
 					snprintf(sendBuffer,sizeof(sendBuffer),"%s/%s/up",gameNumber, playerNumber);
+					played = 1;
 				}
 				if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyDown)){
 					//fonction d'envoie au serveur la demande du déplacement
 					snprintf(sendBuffer,sizeof(sendBuffer),"%s/%s/down",gameNumber, playerNumber);
+					played = 1;
 				}
 				if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyLeft)){
 					//fonction d'envoie au serveur la demande du déplacement
 					snprintf(sendBuffer,sizeof(sendBuffer),"%s/%s/left",gameNumber, playerNumber);
+					played = 1;
 				}
 				if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyRight)){
 					//fonction d'envoie au serveur la demande du déplacement
 					snprintf(sendBuffer,sizeof(sendBuffer),"%s/%s/right",gameNumber, playerNumber);
+					played = 1;
 				}
 				if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeySpace)){
 					//fonction d'envoie au serveur la demande du déplacement
 					snprintf(sendBuffer,sizeof(sendBuffer),"%s/%s/bomb",gameNumber, playerNumber);
+					played = 1;
 				}
 			}
 			// Envoi du coup joué
-			if(sfSocketUDP_Send(socket, sendBuffer, sizeof(sendBuffer), sfIPAddress_FromString("127.0.0.1"), 5100+atoi(gameNumber)*(MAX_PLAYER_NUMBER+1)) != sfSocketDone)
-			{
-				perror("erreur : impossible d'établir la connexion avec le serveur pour envoyer le coup joué.\n");
-				exit(1);
-			}
-		
-			// Attente d'une réponse
-			if(sfSocketUDP_Receive(socketReception, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
-			{
-				perror("erreur : impossible d'établir la connexion avec le serveur pour recevoir les messages du jeu.\n");
-				exit(1);
-			}
-			// Traitement du message
-			if (strcmp(receptionBuffer, "fail") != 0){
-				myTurn = 0;	
-				//maj des joueurs (nouvel état après mon mouvement)
-			}
-			printf("%s\n",receptionBuffer);
+			if(played == 1) {
+				if(sfSocketUDP_Send(socket, sendBuffer, sizeof(sendBuffer), sfIPAddress_FromString(argv[2]), 5100+atoi(gameNumber)*(MAX_PLAYER_NUMBER+1)) != sfSocketDone)
+				{
+					perror("erreur : impossible d'établir la connexion avec le serveur pour envoyer le coup joué.\n");
+					exit(1);
+				}
 
+				// Attente d'une réponse
+				if(sfSocketUDP_Receive(socketReception, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
+				{
+					perror("erreur : impossible d'établir la connexion avec le serveur pour recevoir les messages du jeu.\n");
+					exit(1);
+				}
+				// Traitement du message
+				if (strcmp(receptionBuffer, "fail") != 0){
+					myTurn = 0;	
+					//maj des joueurs (nouvel état après mon mouvement)
+				}
+				printf("%s\n",receptionBuffer);
+			}
 		} else {	// En attente de notre tour
 			// Attente d'une réponse
+			printf("attente\n");
 			if(sfSocketUDP_Receive(socketReception, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
 			{
 				perror("erreur : impossible d'établir la connexion avec le serveur pour recevoir les messages du jeu.\n");
@@ -191,7 +199,6 @@ int main(int argc, char **argv) {
 			}
 			else {
 			//maj de joueurs
-
 			}
 			printf("%s\n",receptionBuffer);
 		}

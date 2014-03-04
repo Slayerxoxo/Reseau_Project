@@ -88,6 +88,7 @@ Player* createPlayer(int number) {
 
 void handleGame(void* roomIndex) {
 	int gameIndex;								// L'indice de la partie à gérer dans le tableau des parties
+	int i;										// Une variable pour les boucles
 	
 	sfSocketUDP* socketSend = sfSocketUDP_Create();
 	
@@ -106,13 +107,25 @@ void handleGame(void* roomIndex) {
 	
 		switch(rooms[gameIndex]->state) {
 			case STARTING:	// Le dernier joueur attendu vient d'être ajouté
-				// ouverture des threads/sockets/... pour écoute des joueurs
-				if(sfSocketUDP_Send(socketSend, "toto", sizeof("toto"), rooms[gameIndex]->players[0]->address, 5200) != sfSocketDone)
-				{
-					perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
-				} else {
-					//printf("Envoi : toto\n");
+																						// ouverture des threads/sockets/... pour écoute des joueurs
+				// Envoi du message de début de partie à tout le monde
+				for(i=0;i<rooms[gameIndex]->playerNumber;i++) {
+					if(sfSocketUDP_Send(socketSend, "start", sizeof("start"), rooms[gameIndex]->players[i]->address, 5100+gameIndex*(playersPerRoom+1)+i+1) != sfSocketDone)
+					{
+						perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
+					} else {
+						printf("Envoi : start au joueur %d\n",i+1);
+						sleep(1);
+					}
 				}
+				// Indication au premier joueur que c'est son tour
+				if(sfSocketUDP_Send(socketSend, "play", sizeof("play"), rooms[gameIndex]->players[0]->address, 5100+gameIndex*(playersPerRoom+1)+1) != sfSocketDone)
+					{
+						perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
+					} else {
+						printf("Envoi : play\n");
+					}
+				rooms[gameIndex]->state = PLAYING;
 				break;
 			case PLAYING:	// La partie est en cours
 				break;
