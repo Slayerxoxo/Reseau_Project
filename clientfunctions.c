@@ -194,7 +194,6 @@ void refreshJoueur(Player playerTab[], int sizeTab){
 		sfSprite_SetY(unicornSprite, tempPos.y*sfSprite_GetHeight(unicornSprite)); 
 		sfRenderWindow_DrawSprite(mainWindow, unicornSprite);
 	}
-	
 }
 
 int responseIsForMe(char response[], int responseSize, char pseudo[], int pseudoSize) {

@@ -201,8 +201,6 @@ int main(int argc, char **argv) {
 			}
 			printf("%s\n",receptionBuffer);
 		}
-
 	}
-
     exit(0);   
 }
