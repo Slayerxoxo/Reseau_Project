@@ -196,6 +196,11 @@ void refreshJoueur(Player playerTab[], int sizeTab){
 	}
 }
 
+void readBuffer(char receptionBuffer[128]){
+	
+	
+}
+
 int responseIsForMe(char response[], int responseSize, char pseudo[], int pseudoSize) {
 	return 1;
 }
