@@ -100,6 +100,8 @@ void handleGame(void* roomIndex) {
 	
 	char gameNumber[4];									// Le numéro de la partie à laquelle le joueur envoyant un message appartient
 	char playerNumber[2];								// Le numéro du joueur ayant envoyé un message dans la partie
+	char message[128-4];								// Le message envoyé par le joueur
+	int validMove;										// Une variable pour indiquer si l'action effectuée par le joueur est possible ou non (0 = POSSIBLE, 1 = IMPOSSIBLE)
 	
 	sfSocketUDP* socketSend = sfSocketUDP_Create();
 	
@@ -160,7 +162,62 @@ void handleGame(void* roomIndex) {
 					snprintf(playerNumber, 2 , "%s", strchr(receptionBuffer, '/')+sizeof(char));
 					
 					if((atoi(gameNumber) == gameIndex) && (atoi(playerNumber) == activePlayer)) {
-						// récupération du message et traitement en conséquence
+						// récupération du message
+						snprintf(message,128-2-strlen(gameNumber)-strlen(playerNumber),"%s", strchr(strchr(receptionBuffer, '/')+sizeof(char), '/')+sizeof(char));
+
+						// traitement du message
+						validMove = 0;
+						if(strcmp(message,"up") == 0) {
+						
+						}
+						if(strcmp(message,"down") == 0) {
+						
+						}
+						if(strcmp(message,"left") == 0) {
+						
+						}
+						if(strcmp(message,"right") == 0) {
+						
+						}
+						if(strcmp(message,"bomb") == 0) {
+							validMove = 1;
+						}
+						
+						if(validMove == 0) {
+							// Indication au joueur que son action est impossible
+							if(sfSocketUDP_Send(socketSend, "fail", sizeof("fail"), rooms[gameIndex]->players[activePlayer-1]->address, 5100+gameIndex*(playersPerRoom+1)+activePlayer) != sfSocketDone)
+							{
+								perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
+							} else {
+								printf("Envoi : fail\n");
+							}
+						} else {
+							// Evolution de l'état des bombes
+							
+							
+							// Envoi de l'état du jeu aux joueurs
+							for(i=0;i<rooms[gameIndex]->playerNumber;i++) {
+								if(sfSocketUDP_Send(socketSend, "ok", sizeof("ok"), rooms[gameIndex]->players[i]->address, 5100+gameIndex*(playersPerRoom+1)+i+1) != sfSocketDone)
+								{
+									perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
+								} else {
+									printf("Envoi : ok au joueur %d\n",i+1);
+									sleep(1);
+								}
+							}
+							// Indication au joueur suivant que c'est son tour
+							if(activePlayer != rooms[gameIndex]->playerNumber) {
+								activePlayer++;
+							} else {
+								activePlayer = 1;
+							}
+							if(sfSocketUDP_Send(socketSend, "play", sizeof("play"), rooms[gameIndex]->players[activePlayer-1]->address, 5100+gameIndex*(playersPerRoom+1)+activePlayer) != sfSocketDone)
+							{
+								perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
+							} else {
+								printf("Envoi : play\n");
+							}
+						}
 					}
 				break;
 			default:

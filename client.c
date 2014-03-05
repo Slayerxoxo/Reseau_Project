@@ -171,6 +171,7 @@ int main(int argc, char **argv) {
 					perror("erreur : impossible d'établir la connexion avec le serveur pour envoyer le coup joué.\n");
 					exit(1);
 				}
+				played = 0;
 
 				// Attente d'une réponse
 				if(sfSocketUDP_Receive(socketReception, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
