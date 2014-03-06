@@ -38,6 +38,9 @@ int main(int argc, char **argv) {
 	char playerNumber[2];								// Le numéro du joueur dans la partie
 	int myTurn = 0;										// Indique si c'est notre tour de jouer ou non (0 = NON, 1 = OUI)
 	int played = 0;										// Indique si un coup a été joué ou non (0 = NON, 1 = OUI)
+	
+	int playersInMessage;								// Le nombre de joueurs décrits par un message du serveur
+	Player playersTab[MAX_PLAYER_NUMBER];				// Le tableau contenant les joueurs à afficher
 
 	sfSocketUDP* socketReception = sfSocketUDP_Create();	// Socket utilisée pour écouter les messages du serveur
 //====================================================================================================================================== configuration du client
@@ -183,6 +186,9 @@ int main(int argc, char **argv) {
 				if (strcmp(receptionBuffer, "fail") != 0){
 					myTurn = 0;	
 					//maj des joueurs (nouvel état après mon mouvement)
+					playersInMessage = playersInString(receptionBuffer);
+					stringToPlayers(receptionBuffer, playersTab, MAX_PLAYER_NUMBER);
+					refreshJoueur(playersTab, playersInMessage);
 				}
 				printf("%s\n",receptionBuffer);
 			}
@@ -198,7 +204,15 @@ int main(int argc, char **argv) {
 				myTurn = 1;
 			}
 			else {
-			//maj de joueurs
+				if(strcmp(receptionBuffer, "start") == 0) {
+				
+				}
+				else {
+					//maj de joueurs
+					playersInMessage = playersInString(receptionBuffer);
+					stringToPlayers(receptionBuffer, playersTab, MAX_PLAYER_NUMBER);
+					refreshJoueur(playersTab, playersInMessage);
+				}
 			}
 			printf("%s\n",receptionBuffer);
 		}
