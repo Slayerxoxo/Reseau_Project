@@ -103,6 +103,8 @@ void handleGame(void* roomIndex) {
 	char message[128-4];								// Le message envoyé par le joueur
 	int validMove;										// Une variable pour indiquer si l'action effectuée par le joueur est possible ou non (0 = POSSIBLE, 1 = IMPOSSIBLE)
 	
+	char response[4096];								// La réponse à envoyer au joueur
+	
 	sfSocketUDP* socketSend = sfSocketUDP_Create();
 	
 	gameIndex = *((int*)roomIndex);
@@ -168,7 +170,7 @@ void handleGame(void* roomIndex) {
 						// traitement du message
 						validMove = 0;
 						if(strcmp(message,"up") == 0) {
-						
+							
 						}
 						if(strcmp(message,"down") == 0) {
 						
@@ -195,13 +197,27 @@ void handleGame(void* roomIndex) {
 							// Evolution de l'état des bombes
 							
 							
+							// Construction du message décrivant l'état du jeu
+							/*if(response != NULL) {
+								free(response);
+							}
+							response = malloc(1024*sizeof(char));*/
+							
+							sprintf(response,"%s",playerToString(*(rooms[gameIndex]->players[0])));
+							
+							for(i=1; i < rooms[gameIndex]->playerNumber; i++) {
+								/*response = strcat(response, "/");
+								response = strcat(response, playerToString(*(rooms[gameIndex]->players[i])));*/
+								sprintf(response,"%s/%s",response, playerToString(*(rooms[gameIndex]->players[i])));
+							}
+							
 							// Envoi de l'état du jeu aux joueurs
 							for(i=0;i<rooms[gameIndex]->playerNumber;i++) {
-								if(sfSocketUDP_Send(socketSend, "ok", sizeof("ok"), rooms[gameIndex]->players[i]->address, 5100+gameIndex*(playersPerRoom+1)+i+1) != sfSocketDone)
+								if(sfSocketUDP_Send(socketSend, response, sizeof(response), rooms[gameIndex]->players[i]->address, 5100+gameIndex*(playersPerRoom+1)+i+1) != sfSocketDone)
 								{
 									perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
 								} else {
-									printf("Envoi : ok au joueur %d\n",i+1);
+									printf("Envoi :\n     %s\n     au joueur %d\n", response, i+1);
 									sleep(1);
 								}
 							}
@@ -248,9 +264,11 @@ void addPlayer(int roomIndex, sfIPAddress clientAdr) {
 }
 
 char* playerToString(Player player) {
-	char* lives = malloc(16);
+	char* lives = malloc(sizeof(int));
 	char* direction;
-	char* position = malloc(32+sizeof(char));
+	char* position = malloc(2*sizeof(int)+sizeof(char));
+	char* bombs = malloc(MAX_BOMB_NUMBER*(2*sizeof(char)+sizeof(char)+2*sizeof(int))+(MAX_BOMB_NUMBER-1)*sizeof(char));
+	int i;
 	
 	char* res;
 	
@@ -273,10 +291,39 @@ char* playerToString(Player player) {
 			sprintf(direction, "DOWN");
 			break;
 	}
+	
+	for(i=0;i<MAX_BOMB_NUMBER;i++) {
+		if(i != 0) {
+			bombs = strcat(bombs,";");
+		}
+		switch(player.bombs[i].state) {
+			case IDLE:
+				bombs = strcat(bombs,"i;0;0");
+				break;
+			case COUNTING:
+				sprintf(position, "%d;%d", player.bombs[i].position.x, player.bombs[i].position.y);
+				bombs = strcat(bombs,"c;");	
+				bombs = strcat(bombs, position);
+				break;
+			case RED:
+				sprintf(position, "%d;%d", player.bombs[i].position.x, player.bombs[i].position.y);
+				bombs = strcat(bombs,"r;");	
+				bombs = strcat(bombs, position);
+				break;
+			case EXPLODING:
+				sprintf(position, "%d;%d", player.bombs[i].position.x, player.bombs[i].position.y);
+				bombs = strcat(bombs,"e;");
+				bombs = strcat(bombs, position);
+				break;
+			default:
+				;
+		}
+	}
+	
 	sprintf(position, "%d;%d", player.position.x, player.position.y);
 	
-	res = malloc(sizeof(lives)+sizeof(direction)+sizeof(position)+3*sizeof(char));
-	sprintf(res, "%s;%s;%s", lives, direction, position);
+	res = malloc(sizeof(lives)+sizeof(direction)+sizeof(position)+4*sizeof(char)+sizeof(bombs));
+	sprintf(res, "%s;%s;%s;%s", lives, direction, position, bombs);
 	
 	return res;
 }
