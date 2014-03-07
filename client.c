@@ -24,6 +24,8 @@ typedef struct sockaddr_in 	sockaddr_in;
 typedef struct hostent 		hostent;
 typedef struct servent 		servent;
 
+extern Player* playersTab[MAX_PLAYER_NUMBER];
+
 int main(int argc, char **argv) {
 
 	sfSocketUDP* socket = sfSocketUDP_Create();			// création de la socket
@@ -39,8 +41,8 @@ int main(int argc, char **argv) {
 	int myTurn = 0;										// Indique si c'est notre tour de jouer ou non (0 = NON, 1 = OUI)
 	int played = 0;										// Indique si un coup a été joué ou non (0 = NON, 1 = OUI)
 	
-	int playersInMessage;								// Le nombre de joueurs décrits par un message du serveur
-	Player playersTab[MAX_PLAYER_NUMBER];				// Le tableau contenant les joueurs à afficher
+	int playersInMessage = 0;								// Le nombre de joueurs décrits par un message du serveur
+	//Player playersTab[MAX_PLAYER_NUMBER];				// Le tableau contenant les joueurs à afficher
 
 	sfSocketUDP* socketReception = sfSocketUDP_Create();	// Socket utilisée pour écouter les messages du serveur
 //====================================================================================================================================== configuration du client
@@ -94,7 +96,7 @@ int main(int argc, char **argv) {
 	snprintf(playerNumber, 2 , "%s", strchr(receptionBuffer, '/')+sizeof(char));
 	
 	printf("%s\n", playerNumber);
-	
+	playersInMessage = atoi(playerNumber);	
 	
 	// Liaison de la socket d'écoute du serveur au port de gestion de partie
 	if(!sfSocketUDP_Bind(socketReception,5100+atoi(gameNumber)*(MAX_PLAYER_NUMBER+1)+atoi(playerNumber))) {
@@ -114,6 +116,12 @@ int main(int argc, char **argv) {
  
 	fenetre = creationFenetre();
 	
+	//Affichage
+	sfRenderWindow_Clear(fenetre, sfBlack);			//Remplissage de l'écran par un fond noir
+	creationBackground(fenetre, LARGEUR, HAUTEUR);	//Création de la carte
+	
+	initialisation();								//initialisation de la position du joueur principal
+    sfRenderWindow_Display(fenetre);
 	
 	/* Gestion des évènements */
 
@@ -125,8 +133,7 @@ int main(int argc, char **argv) {
 		sfRenderWindow_Clear(fenetre, sfBlack);			//Remplissage de l'écran par un fond noir
 		creationBackground(fenetre, LARGEUR, HAUTEUR);	//Création de la carte
 		
-		initialisation();								//initialisation de la position du joueur principal
-		afficheALArrache();								// A ENLEVER POUR RENDRE <=== j'aime ^^
+		refreshJoueur(playersTab, playersInMessage);
 	    sfRenderWindow_Display(fenetre);
 
 		if (myTurn == 1) {	// C'est à notre tour de jouer
@@ -184,13 +191,12 @@ int main(int argc, char **argv) {
 				}
 				// Traitement du message
 				if (strcmp(receptionBuffer, "fail") != 0){
+					printf("%s\n",receptionBuffer);
 					myTurn = 0;	
 					//maj des joueurs (nouvel état après mon mouvement)
 					playersInMessage = playersInString(receptionBuffer);
 					stringToPlayers(receptionBuffer, playersTab, MAX_PLAYER_NUMBER);
-					//refreshJoueur(playersTab, playersInMessage);
 				}
-				printf("%s\n",receptionBuffer);
 			}
 		} else {	// En attente de notre tour
 			// Attente d'une réponse
@@ -212,13 +218,12 @@ int main(int argc, char **argv) {
 				
 				}
 				else {
+					printf("%s\n",receptionBuffer);
 					//maj de joueurs
 					playersInMessage = playersInString(receptionBuffer);
 					stringToPlayers(receptionBuffer, playersTab, MAX_PLAYER_NUMBER);
-					//refreshJoueur(playersTab, playersInMessage);
 				}
 			}
-			printf("%s\n",receptionBuffer);
 		}
 	}
     exit(0);   

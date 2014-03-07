@@ -44,6 +44,7 @@
 	sfImage *explosionG;
 	sfImage *explosionH;
 
+	Player* playersTab[MAX_PLAYER_NUMBER];
 	Player joueur;
 	Player ennemi1;
 	Player ennemi2;
@@ -276,46 +277,51 @@ void chargementImages(){
 
 void initialisation(){
 
-	joueur.position.x = 1;
-	joueur.position.y = 1;
+	joueur.position.x = 0;
+	joueur.position.y = 0;
 	joueur.lives = 2;
 	joueur.looking = RIGHT;
-	joueur.bombs[0].position.x = 8;
-	joueur.bombs[0].position.y = 9;
+	joueur.bombs[0].position.x = 7;
+	joueur.bombs[0].position.y = 8;
 	joueur.bombs[0].state = RED;
-	joueur.bombs[1].position.x = 2;
-	joueur.bombs[1].position.y = 1;
+	joueur.bombs[1].position.x = 1;
+	joueur.bombs[1].position.y = 0;
 	joueur.bombs[1].state = COUNTING;
 	joueur.bombs[2].state = IDLE;
-}
+//}
 
-void afficheALArrache() {
+//void afficheALArrache() {
 
-	ennemi1.position.x = 9;
-	ennemi1.position.y = 9;
+	ennemi1.position.x = 8;
+	ennemi1.position.y = 8;
 	ennemi1.lives = 2;
 	ennemi1.looking = LEFT;
 	ennemi1.bombs[0].state = IDLE;
 	ennemi1.bombs[1].state = IDLE;
 	ennemi1.bombs[2].state = IDLE;
 
-	ennemi2.position.x = 1;
-	ennemi2.position.y = 9;
+	ennemi2.position.x = 0;
+	ennemi2.position.y = 8;
 	ennemi2.lives = 2;
 	ennemi2.looking = RIGHT;
 	ennemi2.bombs[0].state = IDLE;
 	ennemi2.bombs[1].state = IDLE;
 	ennemi2.bombs[2].state = IDLE;
 
-	ennemi3.position.x = 9;
-	ennemi3.position.y = 1;
+	ennemi3.position.x = 8;
+	ennemi3.position.y = 0;
 	ennemi3.lives = 2;
 	ennemi3.looking = LEFT;
 	ennemi3.bombs[0].state = IDLE;
 	ennemi3.bombs[1].state = IDLE;
 	ennemi3.bombs[2].state = IDLE;
 
-	Player playerTab[] = {joueur, ennemi1, ennemi2, ennemi3};
+	//Player playerTab[] = {joueur, ennemi1, ennemi2, ennemi3};
 
-	refreshJoueur(playerTab, 4);
+	playersTab[0] = &joueur;
+	playersTab[1] = &ennemi1;
+	playersTab[2] = &ennemi2;
+	playersTab[3] = &ennemi3;
+
+	//refreshJoueur(playersTab, 4);
 }

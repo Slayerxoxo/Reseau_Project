@@ -76,10 +76,30 @@ Player* createPlayer(int number) {
 	Player* result = (Player*)malloc(sizeof(Player));
 	
 	result->lives = MAX_PLAYER_LIVES;
-	if (number%2 == 0) {	// Les joueurs pairs regardent à droite
+	if (number%2 != 0) {	// Les joueurs impairs regardent à droite
 		result->looking = RIGHT;
-	} else {				// Les joueurs impairs regardent à gauche
+	} else {				// Les joueurs pairs regardent à gauche
 		result->looking = LEFT;
+	}
+	
+	switch(number) {
+		case 1:
+			result->position.x = 0;
+			result->position.y = 0;
+			break;
+		case 2:
+			result->position.x = 8;
+			result->position.y = 8;
+			break;
+		case 3:
+			result->position.x = 0;
+			result->position.y = 8;
+			break;
+		case 4:
+			result->position.x = 8;
+			result->position.y = 0;
+		default:
+			;
 	}
 	
 	result->bombs[0].state = IDLE;
@@ -101,7 +121,7 @@ void handleGame(void* roomIndex) {
 	char gameNumber[4];									// Le numéro de la partie à laquelle le joueur envoyant un message appartient
 	char playerNumber[2];								// Le numéro du joueur ayant envoyé un message dans la partie
 	char message[128-4];								// Le message envoyé par le joueur
-	int validMove;										// Une variable pour indiquer si l'action effectuée par le joueur est possible ou non (0 = POSSIBLE, 1 = IMPOSSIBLE)
+	int validMove;										// Une variable pour indiquer si l'action effectuée par le joueur est possible ou non (0 = IMPOSSIBLE, 1 = POSSIBLE)
 	
 	char response[4096];								// La réponse à envoyer au joueur
 	
@@ -170,18 +190,75 @@ void handleGame(void* roomIndex) {
 						// traitement du message
 						validMove = 0;
 						if(strcmp(message,"up") == 0) {
-							
+							if(rooms[gameIndex]->players[activePlayer-1]->position.y != 0) {
+								if((rooms[gameIndex]->players[activePlayer-1]->position.y)%2 == 0) {
+									if((rooms[gameIndex]->players[activePlayer-1]->position.x)%2 == 0) {
+										validMove = 1;
+										//update
+										rooms[gameIndex]->players[activePlayer-1]->position.y-=1;
+										rooms[gameIndex]->players[activePlayer-1]->looking = UP;
+									}
+								} else {
+									validMove = 1;
+									//update
+									rooms[gameIndex]->players[activePlayer-1]->position.y-=1;
+									rooms[gameIndex]->players[activePlayer-1]->looking = UP;
+								}
+							}
 						}
 						if(strcmp(message,"down") == 0) {
-						
+							if(rooms[gameIndex]->players[activePlayer-1]->position.y != 8) {
+								if((rooms[gameIndex]->players[activePlayer-1]->position.y)%2 == 0) {
+									if((rooms[gameIndex]->players[activePlayer-1]->position.x)%2 == 0) {
+										validMove = 1;
+										//update
+										rooms[gameIndex]->players[activePlayer-1]->position.y+=1;
+										rooms[gameIndex]->players[activePlayer-1]->looking = DOWN;
+									}
+								} else {
+									validMove = 1;
+									//update
+									rooms[gameIndex]->players[activePlayer-1]->position.y+=1;
+									rooms[gameIndex]->players[activePlayer-1]->looking = DOWN;
+								}
+							}
 						}
 						if(strcmp(message,"left") == 0) {
-						
+							if(rooms[gameIndex]->players[activePlayer-1]->position.x != 0) {
+								if((rooms[gameIndex]->players[activePlayer-1]->position.x)%2 == 0) {
+									if((rooms[gameIndex]->players[activePlayer-1]->position.y)%2 == 0) {
+										validMove = 1;
+										//update
+										rooms[gameIndex]->players[activePlayer-1]->position.x-=1;
+										rooms[gameIndex]->players[activePlayer-1]->looking = LEFT;
+									}
+								} else {
+									validMove = 1;
+									//update
+									rooms[gameIndex]->players[activePlayer-1]->position.x-=1;
+									rooms[gameIndex]->players[activePlayer-1]->looking = LEFT;
+								}
+							}
 						}
 						if(strcmp(message,"right") == 0) {
-						
+							if(rooms[gameIndex]->players[activePlayer-1]->position.x != 8) {
+								if((rooms[gameIndex]->players[activePlayer-1]->position.x)%2 == 0) {
+									if((rooms[gameIndex]->players[activePlayer-1]->position.y)%2 == 0) {
+										validMove = 1;
+										//update
+										rooms[gameIndex]->players[activePlayer-1]->position.x+=1;
+										rooms[gameIndex]->players[activePlayer-1]->looking = RIGHT;
+									}
+								} else {
+									validMove = 1;
+									//update
+									rooms[gameIndex]->players[activePlayer-1]->position.x+=1;
+									rooms[gameIndex]->players[activePlayer-1]->looking = RIGHT;
+								}
+							}
 						}
 						if(strcmp(message,"bomb") == 0) {
+							// test sur les bombes restantes
 							validMove = 1;
 						}
 						

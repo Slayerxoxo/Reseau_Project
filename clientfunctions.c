@@ -49,7 +49,7 @@ extern sfRenderWindow* mainWindow;
 /****************************************************/
 /*      Mise à jour de la position des joueurs      */
 /****************************************************/
-void refreshJoueur(Player playerTab[], int sizeTab){
+void refreshJoueur(Player* playerTab[], int sizeTab){
 
 	sfSprite *unicornSprite = sfSprite_Create();
 	sfSprite *bombSprite = sfSprite_Create();
@@ -62,10 +62,10 @@ void refreshJoueur(Player playerTab[], int sizeTab){
 
 	for (i=0; i<sizeTab; i++){
 		//Maj la position du joueur
-		tempPos = playerTab[i].position;
+		tempPos = playerTab[i]->position;
 		//Maj la direction du joueur
 			//Vérifie s'il est mort
-			if (playerTab[i].lives < 1){
+			if (playerTab[i]->lives < 1){
 				switch(i)
 				{
 					case 0 :
@@ -84,7 +84,7 @@ void refreshJoueur(Player playerTab[], int sizeTab){
 				//Vérifie s'il y a victoire
 				lifeCount = 1;
 				for (j=1; j<sizeTab; j++){
-					if (playerTab[j].lives > 0){
+					if (playerTab[j]->lives > 0){
 						lifeCount = 0;
 					}
 				}
@@ -107,7 +107,7 @@ void refreshJoueur(Player playerTab[], int sizeTab){
 					switch(i)
 					{
 						case 0 :
-							switch(playerTab[i].looking)
+							switch(playerTab[i]->looking)
 							{
 								case LEFT :
 									tempImage = grisG; break;
@@ -121,7 +121,7 @@ void refreshJoueur(Player playerTab[], int sizeTab){
 									;
 							} break;
 						case 1 :
-							switch(playerTab[i].looking)
+							switch(playerTab[i]->looking)
 							{
 								case LEFT :
 									tempImage = rougeG; break;
@@ -135,7 +135,7 @@ void refreshJoueur(Player playerTab[], int sizeTab){
 									;
 							} break;
 						case 2 :
-							switch(playerTab[i].looking)
+							switch(playerTab[i]->looking)
 							{
 								case LEFT :
 									tempImage = jauneG; break;
@@ -149,7 +149,7 @@ void refreshJoueur(Player playerTab[], int sizeTab){
 									;
 							} break;
 						case 3 :
-							switch(playerTab[i].looking)
+							switch(playerTab[i]->looking)
 							{
 								case LEFT :
 									tempImage = violetG; break;
@@ -167,9 +167,9 @@ void refreshJoueur(Player playerTab[], int sizeTab){
 			}
 		//On vérifie et place les bombes
 		for(k=0; k<3; k++){
-			tempPosBomb = playerTab[i].bombs[k].position;
-			if(playerTab[i].bombs[k].state != IDLE){
-				switch(playerTab[i].bombs[k].state){
+			tempPosBomb = playerTab[i]->bombs[k].position;
+			if(playerTab[i]->bombs[k].state != IDLE){
+				switch(playerTab[i]->bombs[k].state){
 					case COUNTING :
 									tempImageBomb = bombe; break;
 					case RED :
@@ -182,16 +182,16 @@ void refreshJoueur(Player playerTab[], int sizeTab){
 			//On affiche les sprites des bombes
 				sfSprite_SetImage(bombSprite, tempImageBomb);
 				sfSprite_Resize(bombSprite,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
-				sfSprite_SetX(bombSprite, tempPosBomb.x*sfSprite_GetWidth(bombSprite));	
-				sfSprite_SetY(bombSprite, tempPosBomb.y*sfSprite_GetHeight(bombSprite)); 
+				sfSprite_SetX(bombSprite, (tempPosBomb.x+1)*sfSprite_GetWidth(bombSprite));	
+				sfSprite_SetY(bombSprite, (tempPosBomb.y+1)*sfSprite_GetHeight(bombSprite)); 
 				sfRenderWindow_DrawSprite(mainWindow, bombSprite);
 			}
 		}
 		//On affiche les sprites des joueurs
 		sfSprite_SetImage(unicornSprite, tempImage);
 		sfSprite_Resize(unicornSprite,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
-		sfSprite_SetX(unicornSprite, tempPos.x*sfSprite_GetWidth(unicornSprite));	
-		sfSprite_SetY(unicornSprite, tempPos.y*sfSprite_GetHeight(unicornSprite)); 
+		sfSprite_SetX(unicornSprite, (tempPos.x+1)*sfSprite_GetWidth(unicornSprite));	
+		sfSprite_SetY(unicornSprite, (tempPos.y+1)*sfSprite_GetHeight(unicornSprite)); 
 		sfRenderWindow_DrawSprite(mainWindow, unicornSprite);
 	}
 }
@@ -205,7 +205,7 @@ int responseIsForMe(char response[], int responseSize, char pseudo[], int pseudo
 	return 1;
 }
 
-void stringToPlayers(char* playerString, Player playersTab[], int tabSize) {
+void stringToPlayers(char* playerString, Player* playersTab[], int tabSize) {
 	char* playerToken = strtok(playerString, "/");
 	char* itemToken;
 	int currentIndex = 0;
@@ -217,39 +217,39 @@ void stringToPlayers(char* playerString, Player playersTab[], int tabSize) {
 			
 		// les vies
 		itemToken = strtok(playerToken, ";");
-		playersTab[currentIndex].lives = atoi(itemToken);
+		playersTab[currentIndex]->lives = atoi(itemToken);
 		// la direction
 		itemToken = strtok(playerToken, ";");
 		if(strcmp(itemToken,"LEFT") == 0)
-			playersTab[currentIndex].looking = LEFT;
+			playersTab[currentIndex]->looking = LEFT;
 		if(strcmp(itemToken,"RIGHT") == 0)
-			playersTab[currentIndex].looking = RIGHT;
+			playersTab[currentIndex]->looking = RIGHT;
 		if(strcmp(itemToken,"UP") == 0)
-			playersTab[currentIndex].looking = UP;
+			playersTab[currentIndex]->looking = UP;
 		if(strcmp(itemToken,"DOWN") == 0)
-			playersTab[currentIndex].looking = DOWN;	
+			playersTab[currentIndex]->looking = DOWN;	
 		// la position	
 		itemToken = strtok(playerToken, ";");
-		playersTab[currentIndex].position.x = atoi(itemToken);
+		playersTab[currentIndex]->position.x = atoi(itemToken);
 		itemToken = strtok(playerToken, ";");
-		playersTab[currentIndex].position.y = atoi(itemToken);
+		playersTab[currentIndex]->position.y = atoi(itemToken);
 		// les bombes
 		for(i=0; i< MAX_BOMB_NUMBER; i++) {
 			// l'état
 			itemToken = strtok(playerToken, ";");
 			if(strcmp(itemToken, "i") == 0)
-				playersTab[currentIndex].bombs[i].state = IDLE;
+				playersTab[currentIndex]->bombs[i].state = IDLE;
 			if(strcmp(itemToken, "c") == 0)
-				playersTab[currentIndex].bombs[i].state = COUNTING;
+				playersTab[currentIndex]->bombs[i].state = COUNTING;
 			if(strcmp(itemToken, "r") == 0)
-				playersTab[currentIndex].bombs[i].state = RED;
+				playersTab[currentIndex]->bombs[i].state = RED;
 			if(strcmp(itemToken, "e") == 0)
-				playersTab[currentIndex].bombs[i].state = EXPLODING;
+				playersTab[currentIndex]->bombs[i].state = EXPLODING;
 			// la position
 			itemToken = strtok(playerToken, ";");
-			playersTab[currentIndex].bombs[i].position.x = atoi(itemToken);
+			playersTab[currentIndex]->bombs[i].position.x = atoi(itemToken);
 			itemToken = strtok(playerToken, ";");
-			playersTab[currentIndex].bombs[i].position.y = atoi(itemToken);
+			playersTab[currentIndex]->bombs[i].position.y = atoi(itemToken);
 		}
 	
 		playerToken = strtok(NULL, "/");
