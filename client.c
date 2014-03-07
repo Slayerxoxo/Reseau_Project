@@ -131,7 +131,7 @@ int main(int argc, char **argv) {
 
 		if (myTurn == 1) {	// C'est à notre tour de jouer
 			// Ecoute des touches
-  			while (sfRenderWindow_GetEvent(fenetre, &Event) && (played == 0)){
+  			while (sfRenderWindow_GetEvent(fenetre, &Event)/* && (played == 0)*/){
 
 				//Fermeture de la fenêtre
 		        if (Event.Type == sfEvtClosed){
@@ -188,7 +188,7 @@ int main(int argc, char **argv) {
 					//maj des joueurs (nouvel état après mon mouvement)
 					playersInMessage = playersInString(receptionBuffer);
 					stringToPlayers(receptionBuffer, playersTab, MAX_PLAYER_NUMBER);
-					refreshJoueur(playersTab, playersInMessage);
+					//refreshJoueur(playersTab, playersInMessage);
 				}
 				printf("%s\n",receptionBuffer);
 			}
@@ -202,6 +202,10 @@ int main(int argc, char **argv) {
 			// Traitement du message
 			if(strcmp(receptionBuffer, "play") == 0){
 				myTurn = 1;
+				// vidage des événements de la fenêtre
+				while (sfRenderWindow_GetEvent(fenetre, &Event)) {
+				
+				}
 			}
 			else {
 				if(strcmp(receptionBuffer, "start") == 0) {
@@ -211,7 +215,7 @@ int main(int argc, char **argv) {
 					//maj de joueurs
 					playersInMessage = playersInString(receptionBuffer);
 					stringToPlayers(receptionBuffer, playersTab, MAX_PLAYER_NUMBER);
-					refreshJoueur(playersTab, playersInMessage);
+					//refreshJoueur(playersTab, playersInMessage);
 				}
 			}
 			printf("%s\n",receptionBuffer);
