@@ -6,7 +6,7 @@
 
 enum gameState_t {RESET, WAITING, STARTING, PLAYING, FINISHED};			// Etat d'une partie: en attente de joueurs pour démarrer - démarre - en cours - terminée
 enum direction_t {LEFT, RIGHT, UP, DOWN};							// Direction
-enum bombState_t {IDLE, COUNTING, RED, EXPLODING};					// Etat d'une bombe: en attente d'être posée - posée - prête à exploser - en train d'exploser
+enum bombState_t {IDLE, LAUNCHING, COUNTING1, COUNTING2, COUNTING3, COUNTING4, RED, EXPLODING};					// Etat d'une bombe: en attente d'être posée - vient juste d'être posée - posée - prête à exploser - en train d'exploser
 
 typedef struct Position {											// Une position dans un plan
 		int x;														// Son abscisse

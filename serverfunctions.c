@@ -110,7 +110,7 @@ Player* createPlayer(int number) {
 void handleGame(void* roomIndex) {
 	int gameIndex;								// L'indice de la partie à gérer dans le tableau des parties
 	int activePlayer;							// L'indice du joueur dont c'est le tour
-	int i;										// Une variable pour les boucles
+	int i,j;									// Des variables pour les boucles
 	
 	sfSocketUDP* socketReceive = sfSocketUDP_Create();		// Les sockets d'écoute des joueurs
 	char receptionBuffer[128];								// Le buffer réceptionnant les messages reçus
@@ -274,7 +274,14 @@ void handleGame(void* roomIndex) {
 						}
 						if(strcmp(message,"bomb") == 0) {
 							// test sur les bombes restantes
-							validMove = 1;
+							for(i = 0; i < MAX_BOMB_NUMBER && validMove == 0;i++) {
+								if(rooms[gameIndex]->players[activePlayer-1]->bombs[i].state == IDLE) {
+									rooms[gameIndex]->players[activePlayer-1]->bombs[i].state = LAUNCHING;
+									rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.x = rooms[gameIndex]->players[activePlayer-1]->position.x;
+									rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.y = rooms[gameIndex]->players[activePlayer-1]->position.y;
+									validMove = 1;
+								}
+							}
 						}
 						
 						if(validMove == 0) {
@@ -287,8 +294,34 @@ void handleGame(void* roomIndex) {
 							}
 						} else {
 							// Evolution de l'état des bombes
-							
-							
+							for(i = 0; i < MAX_BOMB_NUMBER; i++) {
+								switch(rooms[gameIndex]->players[activePlayer-1]->bombs[i].state) {
+									case LAUNCHING:
+										rooms[gameIndex]->players[activePlayer-1]->bombs[i].state = COUNTING1;
+										break;
+									case COUNTING1:
+										rooms[gameIndex]->players[activePlayer-1]->bombs[i].state = COUNTING2;
+										break;
+									case COUNTING2:
+										rooms[gameIndex]->players[activePlayer-1]->bombs[i].state = COUNTING3;
+										break;
+									case COUNTING3:
+										rooms[gameIndex]->players[activePlayer-1]->bombs[i].state = COUNTING4;
+										break;
+									case COUNTING4:
+										rooms[gameIndex]->players[activePlayer-1]->bombs[i].state = RED;
+										break;
+									case RED:
+										rooms[gameIndex]->players[activePlayer-1]->bombs[i].state = EXPLODING;
+										break;
+									case EXPLODING:
+										rooms[gameIndex]->players[activePlayer-1]->bombs[i].state = IDLE;
+										// calcul des dégats
+										break;
+									default:
+										;
+								}
+							}
 							// Construction du message décrivant l'état du jeu
 							sprintf(response,"%s",playerToString(*(rooms[gameIndex]->players[0])));
 							
@@ -351,7 +384,7 @@ char* playerToString(Player player) {
 	char* lives = malloc(sizeof(int));
 	char* direction;
 	char* position = malloc(2*sizeof(int)+sizeof(char));
-	char* bombs = malloc(MAX_BOMB_NUMBER*(2*sizeof(char)+sizeof(char)+2*sizeof(int))+(MAX_BOMB_NUMBER-1)*sizeof(char));
+	char* bombs = malloc(MAX_BOMB_NUMBER*(2*sizeof(char)+2*sizeof(char)+2*sizeof(int))+(MAX_BOMB_NUMBER-1)*sizeof(char));
 	int i;
 	
 	char* res;
@@ -384,9 +417,24 @@ char* playerToString(Player player) {
 			case IDLE:
 				bombs = strcat(bombs,"i;0;0");
 				break;
-			case COUNTING:
+			case COUNTING1:
 				sprintf(position, "%d;%d", player.bombs[i].position.x, player.bombs[i].position.y);
-				bombs = strcat(bombs,"c;");	
+				bombs = strcat(bombs,"c1;");	
+				bombs = strcat(bombs, position);
+				break;
+			case COUNTING2:
+				sprintf(position, "%d;%d", player.bombs[i].position.x, player.bombs[i].position.y);
+				bombs = strcat(bombs,"c2;");	
+				bombs = strcat(bombs, position);
+				break;
+			case COUNTING3:
+				sprintf(position, "%d;%d", player.bombs[i].position.x, player.bombs[i].position.y);
+				bombs = strcat(bombs,"c3;");	
+				bombs = strcat(bombs, position);
+				break;
+			case COUNTING4:
+				sprintf(position, "%d;%d", player.bombs[i].position.x, player.bombs[i].position.y);
+				bombs = strcat(bombs,"c4;");	
 				bombs = strcat(bombs, position);
 				break;
 			case RED:

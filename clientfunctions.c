@@ -170,7 +170,13 @@ void refreshJoueur(Player* playerTab[], int sizeTab){
 			tempPosBomb = playerTab[i]->bombs[k].position;
 			if(playerTab[i]->bombs[k].state != IDLE){
 				switch(playerTab[i]->bombs[k].state){
-					case COUNTING :
+					case COUNTING1 :
+									tempImageBomb = bombe; break;
+					case COUNTING2 :
+									tempImageBomb = bombe; break;
+					case COUNTING3 :
+									tempImageBomb = bombe; break;
+					case COUNTING4 :
 									tempImageBomb = bombe; break;
 					case RED :
 									tempImageBomb = bombeRouge; break;
@@ -246,8 +252,14 @@ void stringToPlayers(char* playerString, Player* playersTab[], int tabSize) {
 			itemToken = strtok(NULL, ";");
 			if(strcmp(itemToken, "i") == 0)
 				playersTab[currentIndex]->bombs[i].state = IDLE;
-			if(strcmp(itemToken, "c") == 0)
-				playersTab[currentIndex]->bombs[i].state = COUNTING;
+			if(strcmp(itemToken, "c1") == 0)
+				playersTab[currentIndex]->bombs[i].state = COUNTING1;
+			if(strcmp(itemToken, "c2") == 0)
+				playersTab[currentIndex]->bombs[i].state = COUNTING2;
+			if(strcmp(itemToken, "c3") == 0)
+				playersTab[currentIndex]->bombs[i].state = COUNTING3;
+			if(strcmp(itemToken, "c4") == 0)
+				playersTab[currentIndex]->bombs[i].state = COUNTING4;
 			if(strcmp(itemToken, "r") == 0)
 				playersTab[currentIndex]->bombs[i].state = RED;
 			if(strcmp(itemToken, "e") == 0)
