@@ -154,6 +154,22 @@ void handleGame(void* roomIndex) {
 						printf("Envoi : start au joueur %d\n",i+1);
 					}
 				}
+				// Construction du message décrivant l'état du jeu
+				sprintf(response,"%s",playerToString(*(rooms[gameIndex]->players[0])));
+				
+				for(i=1; i < rooms[gameIndex]->playerNumber; i++) {
+					sprintf(response,"%s/%s",response, playerToString(*(rooms[gameIndex]->players[i])));
+				}
+				
+				// Envoi de l'état du jeu aux joueurs
+				for(i=0;i<rooms[gameIndex]->playerNumber;i++) {
+					if(sfSocketUDP_Send(socketSend, response, sizeof(response), rooms[gameIndex]->players[i]->address, 5100+gameIndex*(playersPerRoom+1)+i+1) != sfSocketDone)
+					{
+						perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
+					} else {
+						printf("Envoi :\n     %s\n     au joueur %d\n", response, i+1);
+					}
+				}
 				// Indication au premier joueur que c'est son tour
 				activePlayer = 1;
 				if(sfSocketUDP_Send(socketSend, "play", sizeof("play"), rooms[gameIndex]->players[0]->address, 5100+gameIndex*(playersPerRoom+1)+1) != sfSocketDone)
