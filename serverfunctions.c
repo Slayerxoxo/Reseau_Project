@@ -152,7 +152,6 @@ void handleGame(void* roomIndex) {
 						perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
 					} else {
 						printf("Envoi : start au joueur %d\n",i+1);
-						sleep(1);
 					}
 				}
 				// Indication au premier joueur que c'est son tour
@@ -275,16 +274,9 @@ void handleGame(void* roomIndex) {
 							
 							
 							// Construction du message décrivant l'état du jeu
-							/*if(response != NULL) {
-								free(response);
-							}
-							response = malloc(1024*sizeof(char));*/
-							
 							sprintf(response,"%s",playerToString(*(rooms[gameIndex]->players[0])));
 							
 							for(i=1; i < rooms[gameIndex]->playerNumber; i++) {
-								/*response = strcat(response, "/");
-								response = strcat(response, playerToString(*(rooms[gameIndex]->players[i])));*/
 								sprintf(response,"%s/%s",response, playerToString(*(rooms[gameIndex]->players[i])));
 							}
 							
@@ -295,7 +287,6 @@ void handleGame(void* roomIndex) {
 									perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
 								} else {
 									printf("Envoi :\n     %s\n     au joueur %d\n", response, i+1);
-									sleep(1);
 								}
 							}
 							// Indication au joueur suivant que c'est son tour

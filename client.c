@@ -195,7 +195,7 @@ int main(int argc, char **argv) {
 					myTurn = 0;	
 					//maj des joueurs (nouvel état après mon mouvement)
 					playersInMessage = playersInString(receptionBuffer);
-					stringToPlayers(receptionBuffer, playersTab, MAX_PLAYER_NUMBER);
+					stringToPlayers(receptionBuffer, playersTab, playersInMessage);
 				}
 			}
 		} else {	// En attente de notre tour
@@ -221,7 +221,7 @@ int main(int argc, char **argv) {
 					printf("%s\n",receptionBuffer);
 					//maj de joueurs
 					playersInMessage = playersInString(receptionBuffer);
-					stringToPlayers(receptionBuffer, playersTab, MAX_PLAYER_NUMBER);
+					stringToPlayers(receptionBuffer, playersTab, playersInMessage);
 				}
 			}
 		}

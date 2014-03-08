@@ -210,16 +210,23 @@ void stringToPlayers(char* playerString, Player* playersTab[], int tabSize) {
 	char* itemToken;
 	int currentIndex = 0;
 	int i;
+	char* playerTokens[MAX_PLAYER_NUMBER];
 	
-	while(playerToken != NULL) {
-		if (currentIndex >= tabSize)
-			exit(0);
-			
+	
+	while((playerToken != NULL) && (currentIndex < tabSize)) {
+		playerTokens[currentIndex] = playerToken;
+		playerToken = strtok(NULL, "/");	
+		currentIndex+=1;
+	}
+	
+	currentIndex = 0;
+	
+	while(currentIndex < tabSize) {
 		// les vies
-		itemToken = strtok(playerToken, ";");
+		itemToken = strtok(playerTokens[currentIndex], ";");
 		playersTab[currentIndex]->lives = atoi(itemToken);
 		// la direction
-		itemToken = strtok(playerToken, ";");
+		itemToken = strtok(NULL, ";");
 		if(strcmp(itemToken,"LEFT") == 0)
 			playersTab[currentIndex]->looking = LEFT;
 		if(strcmp(itemToken,"RIGHT") == 0)
@@ -228,15 +235,15 @@ void stringToPlayers(char* playerString, Player* playersTab[], int tabSize) {
 			playersTab[currentIndex]->looking = UP;
 		if(strcmp(itemToken,"DOWN") == 0)
 			playersTab[currentIndex]->looking = DOWN;	
-		// la position	
-		itemToken = strtok(playerToken, ";");
+		// la position
+		itemToken = strtok(NULL, ";");
 		playersTab[currentIndex]->position.x = atoi(itemToken);
-		itemToken = strtok(playerToken, ";");
+		itemToken = strtok(NULL, ";");
 		playersTab[currentIndex]->position.y = atoi(itemToken);
 		// les bombes
 		for(i=0; i< MAX_BOMB_NUMBER; i++) {
 			// l'état
-			itemToken = strtok(playerToken, ";");
+			itemToken = strtok(NULL, ";");
 			if(strcmp(itemToken, "i") == 0)
 				playersTab[currentIndex]->bombs[i].state = IDLE;
 			if(strcmp(itemToken, "c") == 0)
@@ -246,14 +253,13 @@ void stringToPlayers(char* playerString, Player* playersTab[], int tabSize) {
 			if(strcmp(itemToken, "e") == 0)
 				playersTab[currentIndex]->bombs[i].state = EXPLODING;
 			// la position
-			itemToken = strtok(playerToken, ";");
+			itemToken = strtok(NULL, ";");
 			playersTab[currentIndex]->bombs[i].position.x = atoi(itemToken);
-			itemToken = strtok(playerToken, ";");
+			itemToken = strtok(NULL, ";");
 			playersTab[currentIndex]->bombs[i].position.y = atoi(itemToken);
 		}
 	
-		playerToken = strtok(NULL, "/");
-		currentIndex++;
+		currentIndex+=1;
 	}
 }
 
