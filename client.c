@@ -105,6 +105,7 @@ int main(int argc, char **argv) {
 	} else {
 		printf("Socket d'écoute des réponses du serveur liée au port %d.\n",5100+atoi(gameNumber)*(MAX_PLAYER_NUMBER+1)+atoi(playerNumber));
 	}
+	//sfSocketUDP_SetBlocking(socketReception, sfTrue);
 	
 	// Lancement de la boucle principale
 		// écoute des entrées

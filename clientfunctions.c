@@ -191,6 +191,33 @@ void refreshJoueur(Player* playerTab[], int sizeTab){
 				sfSprite_SetX(bombSprite, (tempPosBomb.x+1)*sfSprite_GetWidth(bombSprite));	
 				sfSprite_SetY(bombSprite, (tempPosBomb.y+1)*sfSprite_GetHeight(bombSprite)); 
 				sfRenderWindow_DrawSprite(mainWindow, bombSprite);
+				// Si la bombe explose, on affiche aussi les explosions
+				if(tempImageBomb == explosionCentre) {
+					// Le bas
+					sfSprite_SetImage(bombSprite, explosionB);
+					sfSprite_Resize(bombSprite,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
+					sfSprite_SetX(bombSprite, (tempPosBomb.x+1)*sfSprite_GetWidth(bombSprite));	
+					sfSprite_SetY(bombSprite, (tempPosBomb.y+2)*sfSprite_GetHeight(bombSprite)); 
+					sfRenderWindow_DrawSprite(mainWindow, bombSprite);
+					// Le haut
+					sfSprite_SetImage(bombSprite, explosionH);
+					sfSprite_Resize(bombSprite,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
+					sfSprite_SetX(bombSprite, (tempPosBomb.x+1)*sfSprite_GetWidth(bombSprite));	
+					sfSprite_SetY(bombSprite, (tempPosBomb.y)*sfSprite_GetHeight(bombSprite)); 
+					sfRenderWindow_DrawSprite(mainWindow, bombSprite);
+					// La gauche
+					sfSprite_SetImage(bombSprite, explosionG);
+					sfSprite_Resize(bombSprite,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
+					sfSprite_SetX(bombSprite, (tempPosBomb.x)*sfSprite_GetWidth(bombSprite));	
+					sfSprite_SetY(bombSprite, (tempPosBomb.y+1)*sfSprite_GetHeight(bombSprite)); 
+					sfRenderWindow_DrawSprite(mainWindow, bombSprite);
+					// La droite
+					sfSprite_SetImage(bombSprite, explosionD);
+					sfSprite_Resize(bombSprite,(sfRenderWindow_GetWidth(mainWindow)/LARGEUR), (sfRenderWindow_GetHeight(mainWindow)/HAUTEUR));
+					sfSprite_SetX(bombSprite, (tempPosBomb.x+2)*sfSprite_GetWidth(bombSprite));	
+					sfSprite_SetY(bombSprite, (tempPosBomb.y+1)*sfSprite_GetHeight(bombSprite)); 
+					sfRenderWindow_DrawSprite(mainWindow, bombSprite);
+				}
 			}
 		}
 		//On affiche les sprites des joueurs
