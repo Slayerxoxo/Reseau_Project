@@ -317,7 +317,7 @@ void handleGame(void* roomIndex) {
 									case EXPLODING:
 										rooms[gameIndex]->players[activePlayer-1]->bombs[i].state = IDLE;
 										// calcul des dégats
-										for(j=0;rooms[gameIndex]->playerNumber;j++){
+										for(j=0;j<rooms[gameIndex]->playerNumber;j++){
 											if(rooms[gameIndex]->players[j]->position.x == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.x && rooms[gameIndex]->players[j]->position.y == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.y){
 												if(rooms[gameIndex]->players[j]->lives > 0){
 													rooms[gameIndex]->players[j]->lives--;
