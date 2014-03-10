@@ -323,6 +323,26 @@ void handleGame(void* roomIndex) {
 													rooms[gameIndex]->players[j]->lives--;
 												}
 											}
+											if((rooms[gameIndex]->players[j]->position.x -1) == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.x && rooms[gameIndex]->players[j]->position.y == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.y){
+												if(rooms[gameIndex]->players[j]->lives > 0){
+													rooms[gameIndex]->players[j]->lives--;
+												}
+											}
+											if((rooms[gameIndex]->players[j]->position.x +1) == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.x && rooms[gameIndex]->players[j]->position.y == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.y){
+												if(rooms[gameIndex]->players[j]->lives > 0){
+													rooms[gameIndex]->players[j]->lives--;
+												}
+											}
+											if(rooms[gameIndex]->players[j]->position.x == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.x && (rooms[gameIndex]->players[j]->position.y +1) == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.y){
+												if(rooms[gameIndex]->players[j]->lives > 0){
+													rooms[gameIndex]->players[j]->lives--;
+												}
+											}
+											if(rooms[gameIndex]->players[j]->position.x == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.x && (rooms[gameIndex]->players[j]->position.y -1) == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.y){
+												if(rooms[gameIndex]->players[j]->lives > 0){
+													rooms[gameIndex]->players[j]->lives--;
+												}
+											}
 										}
 										break;
 									default:
