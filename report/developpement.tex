@@ -1,11 +1,42 @@
-	Les clients et le serveur communiquent en s'envoyant divers messages. Ces messages concerne l'état du jeu ou l'état des joueurs (position, points de vie, nombre de bombes, ...). Ces messages sont sous la forme de chaînes de caractères et agissent sur les variables du jeu.
+	Les clients et le serveur communiquent en s'envoyant divers messages. Ces messages concerne l'état du jeu ou l'état des joueurs (position, points de vie, nombre de bombes, tour de jeu...). Ces messages sont sous la forme de chaînes de caractères et agissent sur les différentes variables du jeu.
 
 \section*{Serveur}
 \addcontentsline{toc}{section}{\protect\numberline{}Serveur}
 
-Lorsque le serveur est lancé, il reçoit en paramêtre le nombre de parties à gérer, et le nombre de joueurs nécéssaire par partie. 
+Lorsque le serveur est lancé, il reçoit en paramêtre le nombre de parties à gérer, et le nombre de joueurs nécéssaire par partie. \\
+
+[[[[[[[Partie du rapport à faire par toi si possible]]]]]]]
 
 \section*{Client}
 \addcontentsline{toc}{section}{\protect\numberline{}Client}
 
-Chaque client reçoit en paramêtre un nom (celui du joueur) et une adresse (le port du serveur).
+Avant de lancer les divers clients, il faut s'assurer que le serveur tourne déjà. Lorsque un client est exécuté, il doit avoir en paramêtres : une chaîne de caractères (le nom du joueur) et une adresse (l'adresse ip du serveur). Grâce à ces paramêtres, le client demande une connexion au serveur qui, s'il n'est pas surchargé, répond en lui renvoyant le numéro de la partie qui lui a été attribué et son numéro de joueur. Si le serveur est surchargé, il répond qu'aucune partie n'est disponible.
+
+\subsection*{Déroulement d'une partie}
+\addcontentsline{toc}{subsection}{\protect\numberline{}Déroulement d'une partie}
+
+Lorsque le client est connecté au serveur et qu'il possède un numéro de partie et un numéro de joueur, alors la partie peut commencer. Le joueur dispose de deux états, mis à jour par le serveur : l'un lorsque c'est à son tour de jouer, et l'autre quand ça ne l'est pas.\\ 
+
+Si c'est à son tour de jouer, alors le client récupère une action de l'utilisateur et l'envoie au serveur. Le serveur peut alors lui renvoyer deux messages :
+\begin{itemize}
+	\item Un message disant que l'action de l'utilisateur est réfusée (déplacement incorrect...), dans ce cas le client récupère une nouvelle action de l'utilisateur, la renvoie au serveur et re-attend un nouveaux message.
+	\item Un message avec les nouvelles coordonnées des joueurs et des bombes, qui signifie que l'action à été acceptée, que le client doit mettre à jour l'interface graphique, et que ce n'est plus à son tour de jouer.
+\end{itemize}
+
+Si ce n'est pas à son tour de jouer, alors le client peut recevoir deux messages différents du serveur :
+\begin{itemize}
+	\item Un message lui annonçant que tous les joueurs ont fini de jouer et que c'est à son tour.
+	\item Un message avec les nouvelles coordonnées des joueurs et des bombes pour que le client mette à jour l'interface graphique.
+\end{itemize}
+
+\subsection*{Structure du code}
+\addcontentsline{toc}{subsection}{\protect\numberline{}Structure du code}
+
+Pour simplifier et la création et la lecture du code du client, nous l'avons divisé en plusieurs parties :
+\begin{itemize}
+	\item client.c : fichier principal appelant les différentes fonctions du client.
+	\item clientfunctions.c : fichier secondaire contenant les différentes fonctions indispensables au bon fonctionnement du client.
+	\item graphic.c : fichier contenant les différentes fonctions liées à l'affichage graphique gérée par le client.
+\end{itemize}
+ 
+

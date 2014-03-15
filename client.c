@@ -107,14 +107,6 @@ int main(int argc, char **argv) {
 	}
 	//sfSocketUDP_SetBlocking(socketReception, sfTrue);
 	
-	// Lancement de la boucle principale
-		// écoute des entrées
-		// affichage de l'état actuel du jeu
-		// récupération des messages serveur
-			// pb : fonction d'écoute bloquante
-				// fork ?
-				// thread ?
- 
 	fenetre = creationFenetre();
 	
 	//Affichage
@@ -128,7 +120,6 @@ int main(int argc, char **argv) {
 
 	while(sfRenderWindow_IsOpened(fenetre)){
 		sfEvent Event;
-      
 
 		//Affichage
 		sfRenderWindow_Clear(fenetre, sfBlack);			//Remplissage de l'écran par un fond noir
@@ -220,7 +211,7 @@ int main(int argc, char **argv) {
 				}
 				else {
 					printf("%s\n",receptionBuffer);
-					//maj de joueurs
+					//maj des joueurs
 					playersInMessage = playersInString(receptionBuffer);
 					stringToPlayers(receptionBuffer, playersTab, playersInMessage);
 				}
