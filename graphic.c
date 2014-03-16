@@ -51,6 +51,7 @@
 	Player ennemi3;
 
 	sfRenderWindow* mainWindow;
+
 /****************************************************/
 /*            Création de la fenêtre                */
 /****************************************************/
@@ -284,14 +285,6 @@ void initialisation(){
 	joueur.bombs[0].state = IDLE;
 	joueur.bombs[1].state = IDLE;
 	joueur.bombs[2].state = IDLE;
-	/*joueur.bombs[0].position.x = 7;
-	joueur.bombs[0].position.y = 8;
-	joueur.bombs[0].state = RED;
-	joueur.bombs[1].position.x = 1;
-	joueur.bombs[1].position.y = 0;
-	joueur.bombs[1].state = COUNTING;
-	joueur.bombs[2].state = IDLE;*/
-//}
 
 //void afficheALArrache() {
 

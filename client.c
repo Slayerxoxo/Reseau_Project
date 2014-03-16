@@ -185,6 +185,7 @@ int main(int argc, char **argv) {
 				if (strcmp(receptionBuffer, "fail") != 0){
 					printf("%s\n",receptionBuffer);
 					myTurn = 0;	
+					printf("\n Veuillez patienter \n");
 					//maj des joueurs (nouvel état après mon mouvement)
 					playersInMessage = playersInString(receptionBuffer);
 					stringToPlayers(receptionBuffer, playersTab, playersInMessage);
@@ -200,6 +201,7 @@ int main(int argc, char **argv) {
 			// Traitement du message
 			if(strcmp(receptionBuffer, "play") == 0){
 				myTurn = 1;
+				printf("\n A votre tour !!! \n");
 				// vidage des événements de la fenêtre
 				while (sfRenderWindow_GetEvent(fenetre, &Event)) {
 				
