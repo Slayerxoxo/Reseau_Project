@@ -6,5 +6,5 @@ main: main.tex
 tableofcontents: main.tex
 	pdflatex main.tex
 
-clear:
+clean:
 	rm *.aux *.toc *.log *.out

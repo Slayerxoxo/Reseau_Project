@@ -12,31 +12,64 @@ Lorsque le serveur est lancé, il reçoit en paramêtre le nombre de parties à 
 
 Avant de lancer les divers clients, il faut s'assurer que le serveur tourne déjà. Lorsque un client est exécuté, il doit avoir en paramêtres : une chaîne de caractères (le nom du joueur) et une adresse (l'adresse ip du serveur). Grâce à ces paramêtres, le client demande une connexion au serveur qui, s'il n'est pas surchargé, répond en lui renvoyant le numéro de la partie qui lui a été attribué et son numéro de joueur. Si le serveur est surchargé, il répond qu'aucune partie n'est disponible.
 
+
 \subsection*{Déroulement d'une partie}
 \addcontentsline{toc}{subsection}{\protect\numberline{}Déroulement d'une partie}
 
 Lorsque le client est connecté au serveur et qu'il possède un numéro de partie et un numéro de joueur, alors la partie peut commencer. Le joueur dispose de deux états, mis à jour par le serveur : l'un lorsque c'est à son tour de jouer, et l'autre quand ça ne l'est pas.\\ 
 
-Si c'est à son tour de jouer, alors le client récupère une action de l'utilisateur et l'envoie au serveur. Le serveur peut alors lui renvoyer deux messages :
+\underline{Si c'est au tour du client de jouer}, alors celui-ci récupère une action de l'utilisateur et l'envoie au serveur. Le joueur ne peut faire que deux actions différentes, et une seule par tour : se déplacer ou poser une bombe. Lorsque le serveur à reçu l'action du joueur par le client, il doit alors lui renvoyer un message qui peut être :
 \begin{itemize}
-	\item Un message disant que l'action de l'utilisateur est réfusée (déplacement incorrect...), dans ce cas le client récupère une nouvelle action de l'utilisateur, la renvoie au serveur et re-attend un nouveaux message.
-	\item Un message avec les nouvelles coordonnées des joueurs et des bombes, qui signifie que l'action à été acceptée, que le client doit mettre à jour l'interface graphique, et que ce n'est plus à son tour de jouer.
+	\item Soit un message disant que l'action de l'utilisateur est réfusée (déplacement incorrect ou impossibilité de poser une bombe). Dans ce cas le client récupère une nouvelle action de l'utilisateur, la renvoie au serveur et re-attend un nouveau message du serveur.
+	\item Soit un message avec les nouvelles coordonnées des joueurs et des bombes, qui signifie que l'action à été acceptée, que le client doit mettre à jour l'interface graphique, et que ce n'est plus à son tour de jouer.
 \end{itemize}
 
-Si ce n'est pas à son tour de jouer, alors le client peut recevoir deux messages différents du serveur :
+\vspace{0.5cm}
+
+\underline{Si ce n'est pas au tour du client de jouer}, alors celui-ci peut recevoir deux messages différents du serveur :
 \begin{itemize}
-	\item Un message lui annonçant que tous les joueurs ont fini de jouer et que c'est à son tour.
-	\item Un message avec les nouvelles coordonnées des joueurs et des bombes pour que le client mette à jour l'interface graphique.
+	\item Soit un message lui annonçant que tous les joueurs ont fini de jouer et que c'est à son tour.
+	\item Soit un message avec les nouvelles coordonnées des joueurs et des bombes pour que le client mette à jour l'interface graphique.
 \end{itemize}
 
-\subsection*{Structure du code}
-\addcontentsline{toc}{subsection}{\protect\numberline{}Structure du code}
 
-Pour simplifier et la création et la lecture du code du client, nous l'avons divisé en plusieurs parties :
+\subsection*{Mise à jour graphique et fin de partie}
+\addcontentsline{toc}{subsection}{\protect\numberline{}Mise à jour graphique et fin de partie}
+
+A chaque fois que le client reçoit un message du serveur contenant des informations sur les autres joueurs, il met à jour l'interface graphique. Pour cela il fait d'abord des tests sur les données des autres joueurs afin de déterminer :
 \begin{itemize}
-	\item client.c : fichier principal appelant les différentes fonctions du client.
+	\item la position actuelle de tous les joueurs.
+	\item la direction du regard des joueurs en fonction de leur mouvement.
+	\item l'emplacement des bombes.
+	\item l'état des bombes : juste posée, en décompte ou en train d'exploser.
+	\item les points de vie restant aux joueurs et les joueurs mort.
+	\item le statut de la partie : si il y a un vainqueur ou non.
+\end{itemize}
+
+\vspace{0.5cm}
+
+Ensuite, lorsque toutes les données ont été analysée, le client choisie les sprites correspondantes et les places dans la fenêtre. Cette dernière est ensuite actualisée et affichée sur l'écran du joueur qui a exécuté le client. 
+
+
+
+\section*{Structure du code}
+\addcontentsline{toc}{section}{\protect\numberline{}Structure du code}
+
+Pour simplifier et la création et la lecture du code, nous l'avons divisé en plusieurs parties. Il y a donc des fichiers spécifiques au serveur, d'autres uniquement pour le client et quelques uns communs au client et au serveur.\\
+
+En ce qui concerne les fichiers communs, il contiennent essentielement des déclarations et des types, utiles à la fois au client et au serveur, comme par exemple les variables d'une partie ou la description d'une bombe.\\
+
+\noindent{Pour sa part, le client possède plusieurs fichiers qui lui sont exclusif :}
+\begin{itemize}
+	\item client.c : fichier principal décrivant le fonctionnement du client.
 	\item clientfunctions.c : fichier secondaire contenant les différentes fonctions indispensables au bon fonctionnement du client.
-	\item graphic.c : fichier contenant les différentes fonctions liées à l'affichage graphique gérée par le client.
+	\item graphic.c : fichier contenant les différentes fonctions liées à l'affichage graphique.
 \end{itemize}
- 
 
+\vspace{0.5cm}
+
+\noindent{Quant au serveur, il dispose également de fichiers particuliers :}
+\begin{itemize}
+	\item serveur.c : fichier principal décrivant le fonctionnement du serveur.
+	\item serveurfunctions.c : fichier secondaire contenant les différentes fonctions indispensables au bon fonctionnement du serveur.
+\end{itemize}
