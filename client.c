@@ -41,8 +41,9 @@ int main(int argc, char **argv) {
 	int myTurn = 0;										// Indique si c'est notre tour de jouer ou non (0 = NON, 1 = OUI)
 	int played = 0;										// Indique si un coup a été joué ou non (0 = NON, 1 = OUI)
 	
+	int gameEnded = 0;									// Indique si la partie est finie ou non (0 = NON, 1 = OUI)
+	
 	int playersInMessage = 0;								// Le nombre de joueurs décrits par un message du serveur
-	//Player playersTab[MAX_PLAYER_NUMBER];				// Le tableau contenant les joueurs à afficher
 
 	sfSocketUDP* socketReception = sfSocketUDP_Create();	// Socket utilisée pour écouter les messages du serveur
 //====================================================================================================================================== configuration du client
@@ -105,7 +106,6 @@ int main(int argc, char **argv) {
 	} else {
 		printf("Socket d'écoute des réponses du serveur liée au port %d.\n",5100+atoi(gameNumber)*(MAX_PLAYER_NUMBER+1)+atoi(playerNumber));
 	}
-	//sfSocketUDP_SetBlocking(socketReception, sfTrue);
 	
 	fenetre = creationFenetre();
 	
@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
 	
 	/* Gestion des évènements */
 
-	while(sfRenderWindow_IsOpened(fenetre)){
+	while(sfRenderWindow_IsOpened(fenetre) && gameEnded == 0){
 		sfEvent Event;
 
 		//Affichage
@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
 
 		if (myTurn == 1) {	// C'est à notre tour de jouer
 			// Ecoute des touches
-  			while (sfRenderWindow_GetEvent(fenetre, &Event)/* && (played == 0)*/){
+  			while (sfRenderWindow_GetEvent(fenetre, &Event)){
 
 				//Fermeture de la fenêtre
 		        if (Event.Type == sfEvtClosed){
@@ -212,13 +212,41 @@ int main(int argc, char **argv) {
 				
 				}
 				else {
-					printf("%s\n",receptionBuffer);
-					//maj des joueurs
-					playersInMessage = playersInString(receptionBuffer);
-					stringToPlayers(receptionBuffer, playersTab, playersInMessage);
+					if(strcmp(receptionBuffer, "finish") == 0) {
+						gameEnded = 1;
+					}
+					else {
+						printf("%s\n",receptionBuffer);
+						//maj des joueurs
+						playersInMessage = playersInString(receptionBuffer);
+						stringToPlayers(receptionBuffer, playersTab, playersInMessage);
+					}
 				}
 			}
 		}
 	}
+	// Partie terminée
+	printf("#=============================#\n");
+	printf("#       Partie terminée       #\n");
+	printf("#-----------------------------#\n");
+	if(playersTab[atoi(playerNumber)-1]->lives > 0)
+		printf("# Vous gagnez, félicitations! #\n");
+	else
+		printf("#    Vous perdez, dommage!    #\n");
+	printf("#=============================#\n");
+	while(sfRenderWindow_IsOpened(fenetre)) {
+		sfEvent Event;
+		while (sfRenderWindow_GetEvent(fenetre, &Event)){
+
+			//Fermeture de la fenêtre
+			if (Event.Type == sfEvtClosed){
+				sfRenderWindow_Close(fenetre);
+			}
+			if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyEscape)){
+				sfRenderWindow_Close(fenetre);
+			}
+		}
+	}
+	
     exit(0);   
 }

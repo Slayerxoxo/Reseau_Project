@@ -26,7 +26,7 @@ int findRoom() {
 					emptySlot = i;
 				}
 			} else {
-				if(rooms[i]->playerNumber < playersPerRoom)		// Remplacer par un test sur state == WAITING ???
+				if(rooms[i]->playerNumber < playersPerRoom)
 					result = i;
 			}
 		} else {
@@ -111,6 +111,7 @@ void handleGame(void* roomIndex) {
 	int gameIndex;								// L'indice de la partie à gérer dans le tableau des parties
 	int activePlayer;							// L'indice du joueur dont c'est le tour
 	int i,j;									// Des variables pour le parcours des boucles
+	int previousPlayer;							// Le joueur ayant fini son tour
 	
 	sfSocketUDP* socketReceive = sfSocketUDP_Create();		// Les sockets d'écoute des joueurs
 	char receptionBuffer[128];								// Le buffer réceptionnant les messages reçus
@@ -366,18 +367,23 @@ void handleGame(void* roomIndex) {
 								}
 							}
 							// Indication au joueur suivant que c'est son tour
+							previousPlayer = activePlayer;
 							do {
 								if(activePlayer != rooms[gameIndex]->playerNumber) {
 									activePlayer++;
 								} else {
 									activePlayer = 1;
 								}
-							} while(rooms[gameIndex]->players[activePlayer-1]->lives <= 0);
-							if(sfSocketUDP_Send(socketSend, "play", sizeof("play"), rooms[gameIndex]->players[activePlayer-1]->address, 5100+gameIndex*(playersPerRoom+1)+activePlayer) != sfSocketDone)
-							{
-								perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
+							} while((rooms[gameIndex]->players[activePlayer-1]->lives <= 0) && (activePlayer != previousPlayer));
+							if(activePlayer != previousPlayer) {
+								if(sfSocketUDP_Send(socketSend, "play", sizeof("play"), rooms[gameIndex]->players[activePlayer-1]->address, 5100+gameIndex*(playersPerRoom+1)+activePlayer) != sfSocketDone)
+								{
+									perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
+								} else {
+									printf("Envoi : play\n");
+								}
 							} else {
-								printf("Envoi : play\n");
+								rooms[gameIndex]->state = FINISHED;
 							}
 						}
 					}
@@ -390,9 +396,16 @@ void handleGame(void* roomIndex) {
 	}
 	
 	// gestion de fin de partie
-		// annonces aux joueurs
-		// désallocations
-		// ...
+	// annonces aux joueurs
+	for(i=0;i<rooms[gameIndex]->playerNumber;i++) {
+		if(sfSocketUDP_Send(socketSend, "finish", sizeof("finish"), rooms[gameIndex]->players[i]->address, 5100+gameIndex*(playersPerRoom+1)+i+1) != sfSocketDone)
+		{
+			perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message de fin du jeu.\n");
+		} else {
+			printf("Envoi :\n     %s\n     au joueur %d\n", response, i+1);
+		}
+	}
+		// désallocations et reset de la partie
 	sfMutex_Lock(roomsMutex[gameIndex]);
 	
 	resetRoom(gameIndex);

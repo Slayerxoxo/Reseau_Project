@@ -286,8 +286,6 @@ void initialisation(){
 	joueur.bombs[1].state = IDLE;
 	joueur.bombs[2].state = IDLE;
 
-//void afficheALArrache() {
-
 	ennemi1.position.x = 8;
 	ennemi1.position.y = 8;
 	ennemi1.lives = 2;
@@ -312,12 +310,9 @@ void initialisation(){
 	ennemi3.bombs[1].state = IDLE;
 	ennemi3.bombs[2].state = IDLE;
 
-	//Player playerTab[] = {joueur, ennemi1, ennemi2, ennemi3};
-
 	playersTab[0] = &joueur;
 	playersTab[1] = &ennemi1;
 	playersTab[2] = &ennemi2;
 	playersTab[3] = &ennemi3;
 
-	//refreshJoueur(playersTab, 4);
 }

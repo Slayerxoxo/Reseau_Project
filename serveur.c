@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
 		}
 		printf("----------Réception----------\n");
 		printf("Message: %s\n",receptionBuffer);
-		// Gestion du nouveau client => dans un autre thread ?
+		// Gestion du nouveau client
 		givenRoom = findRoom();
 		if(givenRoom == -1) {
 			// Aucune partie n'est disponible
@@ -105,8 +105,6 @@ int main(int argc, char **argv) {
 
 	// Fermeture de la socket d'écoute des demandes de connexion
 	sfSocketUDP_Destroy(socketListen);
-	
-	// désallocations diverses
 	
 	return(EXIT_SUCCESS);
 }
