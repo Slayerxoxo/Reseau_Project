@@ -1,20 +1,56 @@
-	Les clients et le serveur communiquent en s'envoyant divers messages. Ces messages concerne l'état du jeu ou l'état des joueurs (position, points de vie, nombre de bombes, tour de jeu...). Ces messages sont sous la forme de chaînes de caractères et agissent sur les différentes variables du jeu.
+Les clients et le serveur communiquent en s'envoyant divers messages. Ces messages concernent l'état des joueurs (position, points de vie, nombre de bombes, \dots) ou des informations sur la partie (démarrage, début du tour d'un joueur, \dots). Ces messages prennent la forme de tableaux de caractères et sont interprétés par le client ou le serveur.
 
 \section*{Serveur}
 \addcontentsline{toc}{section}{\protect\numberline{}Serveur}
 
-Lorsque le serveur est lancé, il reçoit en paramêtre le nombre de parties à gérer, et le nombre de joueurs nécéssaire par partie. \\
+\subsection*{Fonctionnement général}
+\addcontentsline{toc}{subsection}{\protect\numberline{}Fonctionnement général}
 
-[[[[[[[Partie du rapport à faire par toi si possible]]]]]]]
+L'exécution du serveur prend deux paramètres, le nombre de parties simultanées maximum autorisé (entre 1 et 100), et le nombre de joueurs par partie (entre 2 et 4).
+
+Une fois lancé, il réserve la place mémoire nécessaire pour le nombre de parties demandé, puis écoute les demandes de connexion des clients sur le port 5000.\\
+
+Lors de la réception d'un message sur ce port, il cherche à déterminer si une partie est capable d'accueillir un joueur supplémentaire.
+
+Pour ce faire, il parcourt la liste des parties, à la recherche d'une n'ayant pas assez de joueurs pour démarrer. Dès qu'il trouve une partie dans cet état, il arrête la recherche et ajoute un joueur à la partie. Il envoie ensuite au client un message contenant le numéro de la partie en question et le numéro de joueur du client au sein de cette partie.
+
+Si aucune partie ne manque de joueurs, et que le nombre maximal de parties n'est pas atteint, le serveur crée une nouvelle partie. Il y ajoute ensuite un joueur, et envoie au client un message de la forme décrite précédemment.
+
+Enfin, si aucune partie ne manque de joueurs et que le nombre maximal de parties simultanées est atteint, le serveur envoie au client un message indiquant qu'aucune partie n'est disponible.
+
+\subsection*{Gestion d'une partie}
+\addcontentsline{toc}{subsection}{\protect\numberline{}Gestion d'une partie}
+
+Afin de ne pas créer de conflit et pour éviter les blocages ou arrêts du serveur, chaque partie est gérée dasn un thread qui lui est propre. Ainsi, dans le cas d'un problème tel que le blocage de la partie, le serveur est toujours en mesure de gérer l'arrivée de nouveaux clients.
+
+La mise en place d'un tel mécanisme a cependant nécessité de pouvoir contrôler les accès concurrents aux parties lors du parcours visant à déterminer si un nouveau joueur peut être accepté ou non. Pour ce faire, nous avons utilisé les mutex tels qu'implémentés par la \texttt{CSFML}.\\
+
+\`A sa création, une partie écoute les messages envoyés par ses joueurs sur un port qui lui est propre. Le numéro de ce port est déterminé selon la formule suivante: \(5100+numeroPartie*(joueursParPartie+1)\), ce qui donne par exemple 5100, 5105 et 5110 pour 3 parties de 4 joueurs.
+
+Une fois tous les joueurs présents, un message leur est envoyé pour indiquer le début de la partie, et le premier joueur reçoit également le message indiquant qu'il doit effectuer une action.\\
+
+La partie exécute alors la boucle suivante, jusqu'à ce qu'il ne reste qu'un seul joueur en vie:
+\begin{itemize}
+	\item Attente de l'action du client du joueur courant.
+    \item Vérification de la validité de l'action du client. Si celle ci n'est pas valide, un message lui est envoyé demandant de refaire une action. Si celle ci est valide, on passe à l'étape suivante.
+    \item Réalisation de l'action (déplacement ou pose d'une bombe).
+    \item Avancement de l'état des bombes posées par le joueur courant. Si l'une d'elles explose, les dégâts infligés sont calculés.
+    \item Envoi à tous les joueurs du nouvel état du jeu.
+    \item Indication au joueur suivant que c'est à lui de jouer.\\
+\end{itemize}
+
+Une fois la partie finie, un message est envoyé aux joueurs pour le leur indiquer. La partie est ensuite réinitialisée, et prête à accueillir de nouveaux joueurs.
 
 \section*{Client}
 \addcontentsline{toc}{section}{\protect\numberline{}Client}
 
-Avant de lancer les divers clients, il faut s'assurer que le serveur tourne déjà. Lorsque un client est exécuté, il doit avoir en paramêtres : une chaîne de caractères (le nom du joueur) et une adresse (l'adresse ip du serveur). Grâce à ces paramêtres, le client demande une connexion au serveur qui, s'il n'est pas surchargé, répond en lui renvoyant le numéro de la partie qui lui a été attribué et son numéro de joueur. Si le serveur est surchargé, il répond qu'aucune partie n'est disponible.
+Avant de lancer les divers clients, il faut s'assurer que le serveur tourne déjà. Lorsque un client est exécuté, il doit avoir en paramètres : une adresse (l'adresse ip du serveur) et une chaîne de caractères (le nom du joueur). Grâce à ces paramètres, le client demande une connexion au serveur qui, s'il n'est pas surchargé, répond sur le port 5001 en lui renvoyant le numéro de la partie qui lui a été attribuée et son numéro de joueur. Si le serveur est surchargé, il répond qu'aucune partie n'est disponible.
 
 
 \subsection*{Déroulement d'une partie}
 \addcontentsline{toc}{subsection}{\protect\numberline{}Déroulement d'une partie}
+
+Une fois la connexion acceptée et le client ajouté à une partie, les messages du serveur sont reçus sur un port dépendant du numéro de partie et du numéro du joueur dans cette partie, calculé de la façon suivante: \( 5100 + numeroPartie * (joueursMaxParPartie + 1) + numeroDeJoueur\). Ceci permet de lancer autant de client que possibles sur une seule machine sans avoir pour autant de problème pour envoyer le bon message au bon client.
 
 Lorsque le client est connecté au serveur et qu'il possède un numéro de partie et un numéro de joueur, alors la partie peut commencer. Le joueur dispose de deux états, mis à jour par le serveur : l'un lorsque c'est à son tour de jouer, et l'autre quand ça ne l'est pas.\\ 
 
@@ -29,9 +65,12 @@ Lorsque le client est connecté au serveur et qu'il possède un numéro de parti
 \underline{Si ce n'est pas au tour du client de jouer}, alors celui-ci peut recevoir deux messages différents du serveur :
 \begin{itemize}
 	\item Soit un message lui annonçant que tous les joueurs ont fini de jouer et que c'est à son tour.
-	\item Soit un message avec les nouvelles coordonnées des joueurs et des bombes pour que le client mette à jour l'interface graphique.
+	\item Soit un message avec les nouvelles coordonnées des joueurs et des bombes pour que le client mette à jour l'interface graphique.\\
 \end{itemize}
 
+Ces étapes sont répétées en boucle jusqu'au message du serveur indiquant que la partie est terminée.
+
+Le client détermine alors, selon ses points de vie restants, s'il a gagné ou non.
 
 \subsection*{Mise à jour graphique et fin de partie}
 \addcontentsline{toc}{subsection}{\protect\numberline{}Mise à jour graphique et fin de partie}
@@ -48,28 +87,4 @@ A chaque fois que le client reçoit un message du serveur contenant des informat
 
 \vspace{0.5cm}
 
-Ensuite, lorsque toutes les données ont été analysée, le client choisie les sprites correspondantes et les places dans la fenêtre. Cette dernière est ensuite actualisée et affichée sur l'écran du joueur qui a exécuté le client. 
-
-
-
-\section*{Structure du code}
-\addcontentsline{toc}{section}{\protect\numberline{}Structure du code}
-
-Pour simplifier et la création et la lecture du code, nous l'avons divisé en plusieurs parties. Il y a donc des fichiers spécifiques au serveur, d'autres uniquement pour le client et quelques uns communs au client et au serveur.\\
-
-En ce qui concerne les fichiers communs, il contiennent essentielement des déclarations et des types, utiles à la fois au client et au serveur, comme par exemple les variables d'une partie ou la description d'une bombe.\\
-
-\noindent{Pour sa part, le client possède plusieurs fichiers qui lui sont exclusif :}
-\begin{itemize}
-	\item client.c : fichier principal décrivant le fonctionnement du client.
-	\item clientfunctions.c : fichier secondaire contenant les différentes fonctions indispensables au bon fonctionnement du client.
-	\item graphic.c : fichier contenant les différentes fonctions liées à l'affichage graphique.
-\end{itemize}
-
-\vspace{0.5cm}
-
-\noindent{Quant au serveur, il dispose également de fichiers particuliers :}
-\begin{itemize}
-	\item serveur.c : fichier principal décrivant le fonctionnement du serveur.
-	\item serveurfunctions.c : fichier secondaire contenant les différentes fonctions indispensables au bon fonctionnement du serveur.
-\end{itemize}
+Ensuite, lorsque toutes les données ont été analysée, le client choisit les sprites correspondantes et les places dans la fenêtre. Cette dernière est ensuite actualisée et affichée sur l'écran du joueur qui a exécuté le client. 
