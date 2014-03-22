@@ -41,7 +41,11 @@ int main(int argc, char **argv) {
 	int myTurn = 0;										// Indique si c'est notre tour de jouer ou non (0 = NON, 1 = OUI)
 	int played = 0;										// Indique si un coup a été joué ou non (0 = NON, 1 = OUI)
 	
+	sfSocketStatus receivedStatus;						// Le status émis par une socket après un appel à sfSocketUDP_Receive
+	
 	int gameEnded = 0;									// Indique si la partie est finie ou non (0 = NON, 1 = OUI)
+	int msgReceived;									// Indique si un message a été reçu du serveur (0 = NON, 1 = OUI)
+	int timeoutCount = 0;								// Compte le nombre de fois où un timeout apparait dans les communications avec le serveur
 	
 	int playersInMessage = 0;								// Le nombre de joueurs décrits par un message du serveur
 
@@ -106,6 +110,7 @@ int main(int argc, char **argv) {
 	} else {
 		printf("Socket d'écoute des réponses du serveur liée au port %d.\n",5100+atoi(gameNumber)*(MAX_PLAYER_NUMBER+1)+atoi(playerNumber));
 	}
+	sfSocketUDP_SetBlocking(socketReception, sfFalse);
 	
 	fenetre = creationFenetre();
 	
@@ -116,9 +121,12 @@ int main(int argc, char **argv) {
 	initialisation();								//initialisation de la position du joueur principal
     sfRenderWindow_Display(fenetre);
 	
-	/* Gestion des évènements */
+	/* Gestion de la partie */
 
-	while(sfRenderWindow_IsOpened(fenetre) && gameEnded == 0){
+	sfClock* roundClock = sfClock_Create();
+	int secondsLeft = 30;
+
+	while(sfRenderWindow_IsOpened(fenetre) && gameEnded == 0 && timeoutCount < 5){
 		sfEvent Event;
 
 		//Affichage
@@ -129,6 +137,13 @@ int main(int argc, char **argv) {
 	    sfRenderWindow_Display(fenetre);
 
 		if (myTurn == 1) {	// C'est à notre tour de jouer
+	    
+			// affichage du temps restant
+			if(secondsLeft != 30-(int)sfClock_GetTime(roundClock)) {
+				secondsLeft = 30-(int)sfClock_GetTime(roundClock);
+				printf("Il vous reste %d secondes.\n",secondsLeft);
+			}
+		
 			// Ecoute des touches
   			while (sfRenderWindow_GetEvent(fenetre, &Event)){
 
@@ -168,82 +183,150 @@ int main(int argc, char **argv) {
 			}
 			// Envoi du coup joué
 			if(played == 1) {
-				if(sfSocketUDP_Send(socket, sendBuffer, sizeof(sendBuffer), sfIPAddress_FromString(argv[2]), 5100+atoi(gameNumber)*(MAX_PLAYER_NUMBER+1)) != sfSocketDone)
-				{
-					perror("erreur : impossible d'établir la connexion avec le serveur pour envoyer le coup joué.\n");
-					exit(1);
-				}
-				played = 0;
+				msgReceived = 0;
+				while(msgReceived == 0 && timeoutCount < 5) {
+					if(sfSocketUDP_Send(socket, sendBuffer, sizeof(sendBuffer), sfIPAddress_FromString(argv[2]), 5100+atoi(gameNumber)*(MAX_PLAYER_NUMBER+1)) != sfSocketDone)
+					{
+						perror("erreur : impossible d'établir la connexion avec le serveur pour envoyer le coup joué.\n");
+						exit(1);
+					}
+					played = 0;
 
-				// Attente d'une réponse
-				if(sfSocketUDP_Receive(socketReception, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
-				{
-					perror("erreur : impossible d'établir la connexion avec le serveur pour recevoir les messages du jeu.\n");
-					exit(1);
+					// Attente d'une réponse
+					sfClock* timeoutClock = sfClock_Create();
+					while(sfClock_GetTime(timeoutClock) < 3.0 && msgReceived == 0) {
+						receivedStatus = sfSocketUDP_Receive(socketReception, receptionBuffer, sizeof(receptionBuffer), received, sender, port);
+						if(receivedStatus == sfSocketDone)
+						{
+							msgReceived = 1;
+						}
+					}
+					if(msgReceived == 1) {
+						// Traitement du message
+						timeoutCount = 0;
+						if (strcmp(receptionBuffer, "fail") != 0){
+							printf("%s\n",receptionBuffer);
+							myTurn = 0;	
+							printf("\n Veuillez patienter \n");
+							//maj des joueurs (nouvel état après mon mouvement)
+							playersInMessage = playersInString(receptionBuffer);
+							stringToPlayers(receptionBuffer, playersTab, playersInMessage);
+						}
+					} else {
+						// gestion du timeout
+						timeoutCount++;
+					}
+					sfClock_Destroy(timeoutClock);
 				}
-				// Traitement du message
-				if (strcmp(receptionBuffer, "fail") != 0){
-					printf("%s\n",receptionBuffer);
-					myTurn = 0;	
-					printf("\n Veuillez patienter \n");
-					//maj des joueurs (nouvel état après mon mouvement)
-					playersInMessage = playersInString(receptionBuffer);
-					stringToPlayers(receptionBuffer, playersTab, playersInMessage);
-				}
+			}
+			if (secondsLeft <= 0) {
+				// fin du tour
+				printf("Temps écoulé! Vous perdez votre tour!\n");
+				myTurn = 0;
+				printf("Veuillez patienter\n");
+				// envoi de l'info au serveur
 			}
 		} else {	// En attente de notre tour
+			msgReceived = 0;
 			// Attente d'une réponse
-			if(sfSocketUDP_Receive(socketReception, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
-			{
-				perror("erreur : impossible d'établir la connexion avec le serveur pour recevoir les messages du jeu.\n");
-				exit(1);
-			}
-			// Traitement du message
-			if(strcmp(receptionBuffer, "play") == 0){
-				myTurn = 1;
-				printf("\n A votre tour !!! \n");
-				// vidage des événements de la fenêtre
-				while (sfRenderWindow_GetEvent(fenetre, &Event)) {
-				
+			while(msgReceived == 0 && sfRenderWindow_IsOpened(fenetre)) {
+				// Ecoute des touches
+				sfEvent Event;
+				while (sfRenderWindow_GetEvent(fenetre, &Event)){
+
+					//Fermeture de la fenêtre
+					if (Event.Type == sfEvtClosed){
+						sfRenderWindow_Close(fenetre);
+					}
+					if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyEscape)){
+						sfRenderWindow_Close(fenetre);
+					}
 				}
-			}
-			else {
-				if(strcmp(receptionBuffer, "start") == 0) {
+				// Ecoute du serveur
+				receivedStatus = sfSocketUDP_Receive(socketReception, receptionBuffer, sizeof(receptionBuffer), received, sender, port);
+				if(receivedStatus == sfSocketDone)
+				{
+					msgReceived = 1;
+					
+					// Traitement du message
+					if(strcmp(receptionBuffer, "play") == 0){
+						myTurn = 1;
+						secondsLeft = 30;
+						printf("\n A votre tour !!! \n");
+						// vidage des événements de la fenêtre
+						while (sfRenderWindow_GetEvent(fenetre, &Event)) {
 				
-				}
-				else {
-					if(strcmp(receptionBuffer, "finish") == 0) {
-						gameEnded = 1;
+						}
+						sfClock_Reset(roundClock);
 					}
 					else {
-						printf("%s\n",receptionBuffer);
-						//maj des joueurs
-						playersInMessage = playersInString(receptionBuffer);
-						stringToPlayers(receptionBuffer, playersTab, playersInMessage);
+						if(strcmp(receptionBuffer, "start") == 0) {
+				
+						}
+						else {
+							if(strcmp(receptionBuffer, "finish") == 0) {
+								gameEnded = 1;
+							}
+							else {
+								printf("%s\n",receptionBuffer);
+								//maj des joueurs
+								playersInMessage = playersInString(receptionBuffer);
+								stringToPlayers(receptionBuffer, playersTab, playersInMessage);
+							}
+						}
 					}
 				}
 			}
 		}
 	}
 	// Partie terminée
-	printf("#=============================#\n");
-	printf("#       Partie terminée       #\n");
-	printf("#-----------------------------#\n");
-	if(playersTab[atoi(playerNumber)-1]->lives > 0)
-		printf("# Vous gagnez, félicitations! #\n");
-	else
-		printf("#    Vous perdez, dommage!    #\n");
-	printf("#=============================#\n");
-	while(sfRenderWindow_IsOpened(fenetre)) {
-		sfEvent Event;
-		while (sfRenderWindow_GetEvent(fenetre, &Event)){
+	if(gameEnded == 1) {
+		printf("#=============================#\n");
+		printf("#       Partie terminée       #\n");
+		printf("#-----------------------------#\n");
+		if(playersTab[atoi(playerNumber)-1]->lives > 0)
+			printf("# Vous gagnez, félicitations! #\n");
+		else
+			printf("#    Vous perdez, dommage!    #\n");
+		printf("#=============================#\n");
+		printf("------Appuyez sur ECHAP ou fermez la fenêtre pour quitter------\n");
+		while(sfRenderWindow_IsOpened(fenetre)) {
+			sfEvent Event;
+			while (sfRenderWindow_GetEvent(fenetre, &Event)){
 
-			//Fermeture de la fenêtre
-			if (Event.Type == sfEvtClosed){
-				sfRenderWindow_Close(fenetre);
+				//Fermeture de la fenêtre
+				if (Event.Type == sfEvtClosed){
+					sfRenderWindow_Close(fenetre);
+				}
+				if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyEscape)){
+					sfRenderWindow_Close(fenetre);
+				}
 			}
-			if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyEscape)){
-				sfRenderWindow_Close(fenetre);
+		}
+	} else {
+		// Timeouts trop nombreux
+		if(timeoutCount >= 5) {
+			printf("Le serveur ne répond plus, la partie est interrompue!\n");
+			printf("Merci d'avoir joué.\n");
+			printf("------Appuyez sur ECHAP ou fermez la fenêtre pour quitter------\n");
+			while(sfRenderWindow_IsOpened(fenetre)) {
+				sfEvent Event;
+				while (sfRenderWindow_GetEvent(fenetre, &Event)){
+
+					//Fermeture de la fenêtre
+					if (Event.Type == sfEvtClosed){
+						sfRenderWindow_Close(fenetre);
+					}
+					if ((Event.Type == sfEvtKeyPressed) && (Event.Key.Code == sfKeyEscape)){
+						sfRenderWindow_Close(fenetre);
+					}
+				}
+			}
+		} else {
+			// La fenêtre a été fermée
+			if(!sfRenderWindow_IsOpened(fenetre)) {
+				printf("Vous avez quitté la partie en cours de jeu.\n");
+				printf("A bientôt!\n");
 			}
 		}
 	}
