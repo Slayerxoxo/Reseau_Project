@@ -126,6 +126,11 @@ void handleGame(void* roomIndex) {
 	
 	char response[4096];								// La réponse à envoyer au joueur
 	
+	sfClock* timeoutClock = sfClock_Create();		// Le compteur déterminant si le tour d'un joueur est passé
+	int actionReceived;								// Indique si une action est reçue du client (0 = NON, 1 = OUI);
+	int roundsWasted[MAX_PLAYER_NUMBER] = {0};		// Le nombre de tours à la suite où les joueurs n'ont rien fait
+	int othersAlive;								// Indique si des joueurs autres que le joueur courant sont vivants
+	
 	sfSocketUDP* socketSend = sfSocketUDP_Create();
 	
 	gameIndex = *((int*)roomIndex);
@@ -173,6 +178,7 @@ void handleGame(void* roomIndex) {
 				}
 				// Indication au premier joueur que c'est son tour
 				activePlayer = 1;
+				previousPlayer = 0;
 				if(sfSocketUDP_Send(socketSend, "play", sizeof("play"), rooms[gameIndex]->players[0]->address, 5100+gameIndex*(playersPerRoom+1)+1) != sfSocketDone)
 					{
 						perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
@@ -182,14 +188,25 @@ void handleGame(void* roomIndex) {
 				rooms[gameIndex]->state = PLAYING;
 				break;
 			case PLAYING:	// La partie est en cours
-				// écoute du joueur courant
-				if(sfSocketUDP_Receive(socketReceive, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
-				{
-					perror("erreur : impossible d'établir la connexion avec le client pour recevoir les messages du jeu.\n");
-				} else {
-					printf("%s\n",receptionBuffer);
+				actionReceived = 0;
+				sfSocketUDP_SetBlocking(socketReceive,sfFalse);
+				if(previousPlayer != activePlayer) {
+					sfClock_Reset(timeoutClock);
 				}
+				while(sfClock_GetTime(timeoutClock) < 30 && actionReceived == 0) {
+					// écoute du joueur courant
+					if(sfSocketUDP_Receive(socketReceive, receptionBuffer, sizeof(receptionBuffer), received, sender, port) != sfSocketDone)
+					{
+						//perror("erreur : impossible d'établir la connexion avec le client pour recevoir les messages du jeu.\n");
+					} else {
+						printf("%s\n",receptionBuffer);
+						actionReceived = 1;
+					}
+				}
+				sfSocketUDP_SetBlocking(socketReceive,sfTrue);
 				// test du message
+				if(actionReceived == 1) {
+					roundsWasted[activePlayer-1] = 0;
 					// Récupération du numéro de partie
 					if((strlen(receptionBuffer)-strlen(strchr(receptionBuffer, '/'))) <= 3)
 						snprintf(gameNumber, strlen(receptionBuffer)-strlen(strchr(receptionBuffer, '/'))+1, "%s", receptionBuffer);
@@ -375,7 +392,12 @@ void handleGame(void* roomIndex) {
 									activePlayer = 1;
 								}
 							} while((rooms[gameIndex]->players[activePlayer-1]->lives <= 0) && (activePlayer != previousPlayer));
-							if(activePlayer != previousPlayer) {
+							othersAlive = 0;
+							for(i=0; i < rooms[gameIndex]->playerNumber; i++) {
+								othersAlive += rooms[gameIndex]->players[i]->lives;
+							}
+							othersAlive -= rooms[gameIndex]->players[activePlayer-1]->lives;
+							if(activePlayer != previousPlayer && othersAlive > 0) {
 								if(sfSocketUDP_Send(socketSend, "play", sizeof("play"), rooms[gameIndex]->players[activePlayer-1]->address, 5100+gameIndex*(playersPerRoom+1)+activePlayer) != sfSocketDone)
 								{
 									perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
@@ -387,6 +409,109 @@ void handleGame(void* roomIndex) {
 							}
 						}
 					}
+				} else {
+					// tour terminé sans message
+					roundsWasted[activePlayer-1]++;
+					if(roundsWasted[activePlayer-1] >= 3) {
+						rooms[gameIndex]->players[activePlayer-1]->lives = 0;
+					}
+					// Evolution de l'état des bombes
+							for(i = 0; i < MAX_BOMB_NUMBER; i++) {
+								switch(rooms[gameIndex]->players[activePlayer-1]->bombs[i].state) {
+									case LAUNCHING:
+										rooms[gameIndex]->players[activePlayer-1]->bombs[i].state = COUNTING1;
+										break;
+									case COUNTING1:
+										rooms[gameIndex]->players[activePlayer-1]->bombs[i].state = COUNTING2;
+										break;
+									case COUNTING2:
+										rooms[gameIndex]->players[activePlayer-1]->bombs[i].state = COUNTING3;
+										break;
+									case COUNTING3:
+										rooms[gameIndex]->players[activePlayer-1]->bombs[i].state = COUNTING4;
+										break;
+									case COUNTING4:
+										rooms[gameIndex]->players[activePlayer-1]->bombs[i].state = RED;
+										break;
+									case RED:
+										rooms[gameIndex]->players[activePlayer-1]->bombs[i].state = EXPLODING;
+										break;
+									case EXPLODING:
+										rooms[gameIndex]->players[activePlayer-1]->bombs[i].state = IDLE;
+										// calcul des dégats
+										for(j=0;j<rooms[gameIndex]->playerNumber;j++){
+											if(rooms[gameIndex]->players[j]->position.x == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.x && rooms[gameIndex]->players[j]->position.y == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.y){
+												if(rooms[gameIndex]->players[j]->lives > 0){
+													rooms[gameIndex]->players[j]->lives--;
+												}
+											}
+											if((rooms[gameIndex]->players[j]->position.x -1) == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.x && rooms[gameIndex]->players[j]->position.y == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.y){
+												if(rooms[gameIndex]->players[j]->lives > 0){
+													rooms[gameIndex]->players[j]->lives--;
+												}
+											}
+											if((rooms[gameIndex]->players[j]->position.x +1) == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.x && rooms[gameIndex]->players[j]->position.y == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.y){
+												if(rooms[gameIndex]->players[j]->lives > 0){
+													rooms[gameIndex]->players[j]->lives--;
+												}
+											}
+											if(rooms[gameIndex]->players[j]->position.x == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.x && (rooms[gameIndex]->players[j]->position.y +1) == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.y){
+												if(rooms[gameIndex]->players[j]->lives > 0){
+													rooms[gameIndex]->players[j]->lives--;
+												}
+											}
+											if(rooms[gameIndex]->players[j]->position.x == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.x && (rooms[gameIndex]->players[j]->position.y -1) == rooms[gameIndex]->players[activePlayer-1]->bombs[i].position.y){
+												if(rooms[gameIndex]->players[j]->lives > 0){
+													rooms[gameIndex]->players[j]->lives--;
+												}
+											}
+										}
+										break;
+									default:
+										;
+								}
+							}
+							// Construction du message décrivant l'état du jeu
+							sprintf(response,"%s",playerToString(*(rooms[gameIndex]->players[0])));
+							
+							for(i=1; i < rooms[gameIndex]->playerNumber; i++) {
+								sprintf(response,"%s/%s",response, playerToString(*(rooms[gameIndex]->players[i])));
+							}
+							
+							// Envoi de l'état du jeu aux joueurs
+							for(i=0;i<rooms[gameIndex]->playerNumber;i++) {
+								if(sfSocketUDP_Send(socketSend, response, sizeof(response), rooms[gameIndex]->players[i]->address, 5100+gameIndex*(playersPerRoom+1)+i+1) != sfSocketDone)
+								{
+									perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
+								} else {
+									printf("Envoi :\n     %s\n     au joueur %d\n", response, i+1);
+								}
+							}
+							// Indication au joueur suivant que c'est son tour
+							previousPlayer = activePlayer;
+							do {
+								if(activePlayer != rooms[gameIndex]->playerNumber) {
+									activePlayer++;
+								} else {
+									activePlayer = 1;
+								}
+							} while((rooms[gameIndex]->players[activePlayer-1]->lives <= 0) && (activePlayer != previousPlayer));
+							othersAlive = 0;
+							for(i=0; i < rooms[gameIndex]->playerNumber; i++) {
+								othersAlive += rooms[gameIndex]->players[i]->lives;
+							}
+							othersAlive -= rooms[gameIndex]->players[activePlayer-1]->lives;
+							if(activePlayer != previousPlayer && othersAlive > 0) {
+								if(sfSocketUDP_Send(socketSend, "play", sizeof("play"), rooms[gameIndex]->players[activePlayer-1]->address, 5100+gameIndex*(playersPerRoom+1)+activePlayer) != sfSocketDone)
+								{
+									perror("erreur : impossible d'établir la connexion avec le client pour envoyer le message du jeu.\n");
+								} else {
+									printf("Envoi : play\n");
+								}
+							} else {
+								rooms[gameIndex]->state = FINISHED;
+							}
+				}
 				break;
 			default:
 				;
