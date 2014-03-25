@@ -138,10 +138,28 @@ int main(int argc, char **argv) {
 
 		if (myTurn == 1) {	// C'est à notre tour de jouer
 	    
-			// affichage du temps restant
+			// affichage du temps restant et de sa couleur
 			if(secondsLeft != 30-(int)sfClock_GetTime(roundClock)) {
 				secondsLeft = 30-(int)sfClock_GetTime(roundClock);
-				printf("Il vous reste %d secondes.\n",secondsLeft);
+				printf("Il vous reste %d secondes.",secondsLeft);
+				printf("Vous êtes le joueur ");
+				switch(atoi(playerNumber)) {
+					case 1:
+						printf("gris.\n");
+						break;
+					case 2:
+						printf("rouge.\n");
+						break;
+					case 3:
+						printf("jaune.\n");
+						break;
+					case 4:
+						printf("violet.\n");
+						break;
+					default:
+						printf("d'une bien étrange couleur...\n");
+						;
+				}
 			}
 		
 			// Ecoute des touches
